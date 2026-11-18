@@ -1,0 +1,123 @@
+# Sistema ASG Web · Investe Piauí (Grupo 3)
+
+Versão web do painel ASG do grupo. Um administrador envia a planilha da base pelo navegador; o sistema confere a estrutura, roda as 12 checagens de qualidade e grava os dados como uma nova versão. Quem tem login vê o painel com os mesmos números do Power BI v3: Visão Geral, Ambiental, Social, Governança, Metas ASG e uma tela para cada setor, com filtros por setor, vice-presidência, status do projeto e município.
+
+É a peça "Sistema" do fluxo *Sistema → Base de dados → Painel BI* do desafio, entregue como MVP. A especificação está em [docs/superpowers/specs/2026-11-17-sistema-asg-web-design.md](docs/superpowers/specs/2026-11-17-sistema-asg-web-design.md).
+
+## O que é preciso ter instalado
+
+- Docker Desktop (para o banco PostgreSQL)
+- Python 3.12
+- Node.js 24
+
+O PostgreSQL roda num contêiner próprio do projeto, na porta **5433**. Ele não usa nem altera um PostgreSQL que já esteja instalado na máquina.
+
+## Como rodar pela primeira vez
+
+Os comandos abaixo são para o PowerShell, a partir da pasta `SistemaWeb`. Com o Docker Desktop aberto:
+
+```powershell
+# 1. Banco de dados
+docker compose up -d db
+
+# 2. Configuração (usuários de demonstração, senha do banco, segredo do login)
+Copy-Item .env.example .env
+
+# 3. API (Python)
+cd backend
+py -3.12 -m venv .venv
+.venv\Scripts\python -m pip install -r requirements.txt
+.venv\Scripts\python -m app.cli inicializar
+.venv\Scripts\python -m uvicorn app.main:app --port 8000
+```
+
+O comando `inicializar` cria as tabelas, os dois usuários de demonstração e importa a planilha modelo como versão 1. Pode ser rodado de novo sem problema: só cria o que estiver faltando.
+
+Em **outro terminal**, também a partir de `SistemaWeb`:
+
+```powershell
+# 4. Site (React)
+cd frontend
+npm install
+npm run dev
+```
+
+Abra **http://localhost:5173** no navegador.
+
+### Nas próximas vezes
+
+```powershell
+docker compose up -d db
+cd backend; .venv\Scripts\python -m uvicorn app.main:app --port 8000
+```
+
+e, em outro terminal, `cd frontend; npm run dev`.
+
+## Usuários de demonstração
+
+| Perfil | E-mail | Senha |
+|---|---|---|
+| Administrador | admin@asg.local | Admin@2026 |
+| Leitor | leitor@asg.local | Leitor@2026 |
+
+As credenciais vêm do arquivo `.env` (copiado de `.env.example`). Para trocar, edite o `.env` antes de rodar `inicializar`.
+
+- **Leitor**: vê todas as telas do painel e usa os filtros.
+- **Administrador**: tudo do leitor, mais enviar planilha, ver o histórico de versões, voltar a uma versão anterior e cadastrar, desativar ou redefinir a senha de usuários.
+
+Não existe cadastro aberto nem recuperação de senha por e-mail: quem cria e redefine senhas é o administrador, na tela **Usuários**.
+
+## Como enviar uma planilha
+
+1. Entre como administrador e abra **Enviar planilha** no menu.
+2. Se precisar de um ponto de partida, clique em **Baixar planilha modelo**. É a mesma base usada pelo Power BI (`Base_ASG_Grupo3_PowerBI.xlsx`).
+3. Clique em **Escolher arquivo .xlsx**. O sistema lê a planilha e mostra a prévia, sem gravar nada ainda:
+   - **Erros** (em vermelho) impedem a gravação: aba obrigatória ausente, coluna ausente, texto em coluna numérica, data inválida, código repetido ou vazio, projeto ou empresa que não existe na tabela de referência, ou uma "Medida" em `dMetas` que o sistema não sabe calcular. Corrija a planilha e envie de novo.
+   - **Checagens de qualidade C01 a C12** são avisos, as mesmas da página Qualidade dos Dados do Power BI. Elas aparecem com o número de registros afetados, mas não impedem a gravação.
+4. Sem erros, clique em **Confirmar envio**. A planilha vira uma nova versão, que passa a ser a versão em uso. A gravação é feita numa única transação: ou a versão entra inteira, ou nada muda.
+
+O sistema encontra as abas e as colunas pelo nome do cabeçalho (linha 1). Colunas e abas a mais são ignoradas. Linhas totalmente vazias no fim da aba são descartadas. "Sim"/"Não" são aceitos com qualquer combinação de maiúsculas e espaços. A aba `dIndicador` é opcional; sem ela, os cards ficam sem o texto de explicação do "?".
+
+**Histórico de versões** lista todos os envios, inclusive os rejeitados, e permite **ativar** uma versão anterior.
+
+## Testes
+
+Com o banco no ar (`docker compose up -d db`):
+
+```powershell
+cd backend
+.venv\Scripts\python -m pytest -q
+```
+
+```powershell
+cd frontend
+npx vitest run
+```
+
+Os testes do backend usam um banco separado (`asg_test`), criado automaticamente pelo contêiner. Eles conferem os valores do Power BI v3 para a base atual: investimento de R$ 42,83 bi, 48 projetos, Índice ASG 68 e as metas 6/6/12. Também conferem o filtro Mineração, a importação (planilhas com erro não mudam a versão em uso) e as permissões (o leitor recebe recusa ao enviar planilha, ativar versão ou criar usuário).
+
+## Organização do código
+
+```
+SistemaWeb/
+├── docker-compose.yml        banco PostgreSQL 17 (porta 5433)
+├── .env.example              configuração e usuários de demonstração
+├── backend/                  API em FastAPI (Python)
+│   ├── app/planilha/         leitura da planilha, esquema das abas e validação
+│   ├── app/calculos/         medidas DAX portadas, filtros, metas, Índice ASG, checagens
+│   ├── app/paginas/          conteúdo de cada tela (cards, gráficos, tabelas)
+│   ├── app/api/              rotas HTTP (login, envio, versões, painel, usuários)
+│   ├── app/repositorio.py    gravação das versões no banco
+│   ├── dados/base_modelo.xlsx  planilha modelo e carga inicial
+│   └── tests/
+└── frontend/                 site em React + ECharts
+    └── src/                  telas, componentes e formatação pt-BR
+```
+
+Os cálculos seguem as medidas DAX do Power BI v3 (`PowerBI/Painel_ASG_v3/.../_Medidas.tmdl`). Cada medida em [backend/app/calculos/medidas.py](backend/app/calculos/medidas.py) tem o mesmo nome da medida DAX correspondente.
+
+## Fora do MVP
+
+Ficaram para depois: Panorama Piauí (dados públicos ANEEL/ANM), Relações Internacionais, Evolução mensal, Ficha do Projeto e Catálogo de Indicadores; restrição de visualização por vice-presidência; envio separado por área; publicação na internet (o MVP roda localmente); recuperação de senha por e-mail.
+
+Os dados da base são simulados pelo grupo, exceto o fator de emissão do MCTI.
