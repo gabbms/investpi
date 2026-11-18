@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react'
-import type { Coluna, Tabela as TTabela } from '../api'
+import { Fragment, useMemo, useState } from 'react'
+import type { Coluna, Ocorrencia, Tabela as TTabela } from '../api'
+import { BotaoAbrir, ListaOcorrencias } from './ListaOcorrencias'
 import { corDoStatus, normalizar, textoSemLinhas, valor } from '../format'
 
 function Celula({ coluna, v }: { coluna: Coluna; v: unknown }) {
@@ -18,6 +19,13 @@ function Celula({ coluna, v }: { coluna: Coluna; v: unknown }) {
 
 export function Tabela({ tabela }: { tabela: TTabela }) {
   const [busca, setBusca] = useState('')
+  const [abertas, setAbertas] = useState<Set<number>>(new Set())
+  const alternar = (i: number) =>
+    setAbertas((a) => {
+      const n = new Set(a)
+      if (!n.delete(i)) n.add(i)
+      return n
+    })
   const textos = useMemo(
     () => tabela.linhas.map((l) => normalizar(tabela.colunas.map((c) => String(l[c.chave] ?? '')).join(' '))),
     [tabela],
@@ -49,6 +57,7 @@ export function Tabela({ tabela }: { tabela: TTabela }) {
           <table>
             <thead>
               <tr>
+                {tabela.expansivel && <th aria-label="Registros" />}
                 {tabela.colunas.map((c) => (
                   <th key={c.chave} className={['texto', 'status', 'simnao'].includes(c.formato) ? '' : 'num'}>
                     {c.rotulo}
@@ -57,15 +66,35 @@ export function Tabela({ tabela }: { tabela: TTabela }) {
               </tr>
             </thead>
             <tbody>
-              {linhas.map((l, i) => (
-                <tr key={i}>
-                  {tabela.colunas.map((c) => (
-                    <td key={c.chave} className={['texto', 'status', 'simnao'].includes(c.formato) ? '' : 'num'}>
-                      <Celula coluna={c} v={l[c.chave]} />
-                    </td>
-                  ))}
-                </tr>
-              ))}
+              {linhas.map((l, i) => {
+                const ocorrencias = (l.ocorrencias as Ocorrencia[] | undefined) ?? []
+                const aberta = abertas.has(i)
+                return (
+                  <Fragment key={i}>
+                    <tr>
+                      {tabela.expansivel && (
+                        <td>
+                          {ocorrencias.length > 0 && (
+                            <BotaoAbrir aberto={aberta} aoAlternar={() => alternar(i)} rotulo={String(l.id ?? i + 1)} />
+                          )}
+                        </td>
+                      )}
+                      {tabela.colunas.map((c) => (
+                        <td key={c.chave} className={['texto', 'status', 'simnao'].includes(c.formato) ? '' : 'num'}>
+                          <Celula coluna={c} v={l[c.chave]} />
+                        </td>
+                      ))}
+                    </tr>
+                    {aberta && ocorrencias.length > 0 && (
+                      <tr>
+                        <td className="ocorrencias-celula" colSpan={tabela.colunas.length + 1}>
+                          <ListaOcorrencias ocorrencias={ocorrencias} mais={l.mais as number | undefined} />
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
+                )
+              })}
             </tbody>
           </table>
         </div>

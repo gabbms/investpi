@@ -48,6 +48,8 @@ class Tabela(BaseModel):
     linhas: list[dict]
     # caixa de busca acima da tabela (filtra no navegador)
     busca: bool = False
+    # linhas podem abrir uma lista (`ocorrencias`, `mais`); essas chaves não são colunas
+    expansivel: bool = False
 
 
 class Pagina(BaseModel):

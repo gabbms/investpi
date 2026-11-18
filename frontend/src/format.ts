@@ -1,4 +1,6 @@
 // Formatação de números no padrão brasileiro (spec §3): R$ 42,8 bi · 54,2% · 7.236
+import type { Ocorrencia } from './api'
+
 export type Formato = 'brl' | 'num' | 'pct' | 'dec' | 'idx'
 
 const nf = (casas: number) =>
@@ -76,4 +78,9 @@ export function nomeExportacao(caminho: string, hoje: Date = new Date()): string
   const d = (n: number) => String(n).padStart(2, '0')
   const data = `${hoje.getFullYear()}-${d(hoje.getMonth() + 1)}-${d(hoje.getDate())}`
   return `ASG_${caminho.replace(/\//g, '_')}_${data}.xlsx`
+}
+
+/** Onde está o registro: "dProjeto · linha 2 · PROJ001" (sem a linha ou o código quando não há). */
+export function textoOcorrencia(o: Ocorrencia): string {
+  return [o.aba, o.linha != null ? `linha ${o.linha}` : null, o.identificador || null].filter(Boolean).join(' · ')
 }

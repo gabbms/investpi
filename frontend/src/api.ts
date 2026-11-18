@@ -47,6 +47,7 @@ export interface Tabela {
   colunas: Coluna[]
   linhas: Record<string, unknown>[]
   busca?: boolean
+  expansivel?: boolean
 }
 export interface Pagina {
   titulo: string
@@ -68,12 +69,20 @@ export interface ErroEstrutura {
   coluna: string | null
   mensagem: string
 }
+export interface Ocorrencia {
+  aba: string
+  linha: number | null
+  identificador: string
+  detalhe: string
+}
 export interface Checagem {
   id: string
   checagem: string
   tabela: string
   regra: string
   problemas: number
+  ocorrencias?: Ocorrencia[]
+  mais?: number
 }
 export interface Previa {
   linhas_por_aba: Record<string, number>

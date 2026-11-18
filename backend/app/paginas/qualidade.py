@@ -24,7 +24,8 @@ def _linhas_por_aba(versao: Versao) -> list[tuple[str, int]]:
     return [(a, int(contagem[a])) for a in ordem]
 
 
-def montar(base: Base, versao: Versao) -> Pagina:
+def montar(base: Base, versao: Versao, completo: bool = False) -> Pagina:
+    """`completo` (só a exportação) acrescenta a tabela Problemas, com todas as ocorrências."""
     checagens = rodar_checagens(base)
     abas = _linhas_por_aba(versao)
     problemas = sum(c.problemas for c in checagens)
@@ -35,36 +36,57 @@ def montar(base: Base, versao: Versao) -> Pagina:
         ("Abas carregadas", len(abas), None),
         ("Linhas carregadas", sum(n for _, n in abas), None),
     ]
+    tabelas = [
+        Tabela(
+            id="checagens",
+            titulo="Checagens de qualidade (C01–C12)",
+            colunas=[
+                Coluna(chave="id", rotulo="ID", formato="texto"),
+                Coluna(chave="checagem", rotulo="Checagem", formato="texto"),
+                Coluna(chave="tabela", rotulo="Tabelas", formato="texto"),
+                Coluna(chave="regra", rotulo="Regra", formato="texto"),
+                Coluna(chave="problemas", rotulo="Problemas", formato="num"),
+                Coluna(chave="situacao", rotulo="Situação", formato="status"),
+            ],
+            linhas=[
+                {**c.com_ocorrencias(), "situacao": "OK" if c.problemas == 0 else "Verificar"}
+                for c in checagens
+            ],
+            expansivel=True,
+        ),
+        Tabela(
+            id="abas",
+            titulo="Linhas por aba",
+            colunas=[
+                Coluna(chave="aba", rotulo="Aba", formato="texto"),
+                Coluna(chave="linhas", rotulo="Linhas", formato="num"),
+            ],
+            linhas=[{"aba": a, "linhas": n} for a, n in abas],
+        ),
+    ]
+    if completo:
+        tabelas.append(
+            Tabela(
+                id="problemas",
+                titulo="Problemas",
+                colunas=[
+                    Coluna(chave="checagem", rotulo="Checagem", formato="texto"),
+                    Coluna(chave="aba", rotulo="Aba", formato="texto"),
+                    Coluna(chave="linha", rotulo="Linha", formato="num"),
+                    Coluna(chave="identificador", rotulo="Identificador", formato="texto"),
+                    Coluna(chave="detalhe", rotulo="Detalhe", formato="texto"),
+                ],
+                linhas=[
+                    {"checagem": f"{c.id} · {c.checagem}", "aba": o.aba, "linha": o.linha,
+                     "identificador": o.identificador, "detalhe": o.detalhe}
+                    for c in checagens
+                    for o in c.ocorrencias
+                ],
+            )
+        )
     return Pagina(
         titulo="Qualidade dos dados",
         subtitulo=_subtitulo(versao),
         cards=[Card(id=t, titulo=t, valor=float(v), formato="num", status=s) for t, v, s in cards],
-        tabelas=[
-            Tabela(
-                id="checagens",
-                titulo="Checagens de qualidade (C01–C12)",
-                colunas=[
-                    Coluna(chave="id", rotulo="ID", formato="texto"),
-                    Coluna(chave="checagem", rotulo="Checagem", formato="texto"),
-                    Coluna(chave="tabela", rotulo="Tabelas", formato="texto"),
-                    Coluna(chave="regra", rotulo="Regra", formato="texto"),
-                    Coluna(chave="problemas", rotulo="Problemas", formato="num"),
-                    Coluna(chave="situacao", rotulo="Situação", formato="status"),
-                ],
-                linhas=[
-                    {"id": c.id, "checagem": c.checagem, "tabela": c.tabela, "regra": c.regra,
-                     "problemas": c.problemas, "situacao": "OK" if c.problemas == 0 else "Verificar"}
-                    for c in checagens
-                ],
-            ),
-            Tabela(
-                id="abas",
-                titulo="Linhas por aba",
-                colunas=[
-                    Coluna(chave="aba", rotulo="Aba", formato="texto"),
-                    Coluna(chave="linhas", rotulo="Linhas", formato="num"),
-                ],
-                linhas=[{"aba": a, "linhas": n} for a, n in abas],
-            ),
-        ],
+        tabelas=tabelas,
     )

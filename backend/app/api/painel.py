@@ -99,7 +99,7 @@ def exportar(
 ):
     versao = repositorio.versao_ativa(s)
     if caminho == "qualidade":  # a página ignora os filtros; o arquivo também
-        pagina, f = qualidade.montar(base, versao), Filtros()
+        pagina, f = qualidade.montar(base, versao, completo=True), Filtros()
     else:
         pagina = _tela(base, f, caminho, "Página não encontrada")
     conteudo = pagina_para_xlsx(pagina, f, versao)
