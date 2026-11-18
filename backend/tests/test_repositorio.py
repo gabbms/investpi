@@ -1,10 +1,11 @@
 """Gravação transacional de versões (spec §7)."""
 import pytest
-from sqlalchemy import func, select
+from sqlalchemy import func, select, text
 
 from app import repositorio
 from app.calculos.medidas import calcular
 from app.models import LinhaDado, Versao
+from app.planilha.leitura import COLUNA_LINHA
 from tests.apoio import base_modelo
 
 
@@ -93,3 +94,20 @@ def test_rejeicao_nao_muda_ativa(sessao_teste):
     assert rej.erros == [{"mensagem": "Aba ausente"}]
     assert ativas(sessao_teste) == [1]
     assert len(repositorio.carregar_base_ativa(sessao_teste)["dProjeto"]) == 48
+
+
+def test_versao_guarda_a_linha(sessao_teste, usuarios):
+    repositorio.salvar_versao(sessao_teste, base_modelo(), usuarios["admin"].id, "b.xlsx", [])
+    repositorio.limpar_cache()
+    b = repositorio.carregar_base_ativa(sessao_teste)
+    assert b["fContratos"][COLUNA_LINHA].iloc[0] == 2
+
+
+def test_versao_antiga_sem_linha(sessao_teste, usuarios):
+    v = repositorio.salvar_versao(sessao_teste, base_modelo(), usuarios["admin"].id, "b.xlsx", [])
+    sessao_teste.execute(text("update linha_dado set dados = dados - '_linha_planilha' where versao_id = :v"), {"v": v.id})
+    sessao_teste.commit()
+    repositorio.limpar_cache()
+    b = repositorio.carregar_base_ativa(sessao_teste)
+    assert b["dProjeto"][COLUNA_LINHA].isna().all()
+    assert len(b["dProjeto"]) == 48

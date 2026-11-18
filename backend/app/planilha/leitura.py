@@ -19,6 +19,8 @@ from app.planilha.esquema import ABAS
 
 Base = dict[str, pd.DataFrame]
 
+COLUNA_LINHA = "_linha_planilha"  # linha do Excel do registro (cabeçalho = 1); uso interno
+
 
 class PlanilhaInvalida(Exception):
     def __init__(self, mensagem: str):
@@ -146,6 +148,7 @@ def ler_planilha(conteudo: bytes) -> Base:
         df = df.loc[:, ~df.columns.str.startswith("Unnamed:")]
         df = df.map(_limpar_texto)
         df = df.dropna(how="all")
+        df[COLUNA_LINHA] = [int(i) + 2 for i in df.index]
         espec = ABAS[nome]
         for col, tipo in espec.tipos.items():
             if col not in df.columns:
