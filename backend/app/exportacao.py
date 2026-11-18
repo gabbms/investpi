@@ -8,6 +8,7 @@ from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.worksheet import Worksheet
 
 from app.calculos.filtros import Filtros
+from app.gri import IndiceGri
 from app.models import Versao
 from app.paginas.comum import FUSO, data_local
 from app.paginas.tipos import Card, Pagina
@@ -55,17 +56,22 @@ def _cabecalho(ws: Worksheet, linha: int, rotulos: list[str]) -> None:
         ws.cell(row=linha, column=i, value=rotulo).font = NEGRITO
 
 
-def _contexto(wb: Workbook, pagina: Pagina, filtros: Filtros, versao: Versao) -> None:
-    ws = wb.active
-    ws.title = "Contexto"
-    linhas = [
-        ("Página", pagina.titulo),
-        ("Gerado em", data_local(datetime.now(FUSO))),
-        ("Versão dos dados", f"nº {versao.numero} · {versao.nome_arquivo} · enviada em {data_local(versao.criado_em, com_hora=False)}"),
+def _campos_filtro(filtros: Filtros) -> list[tuple[str, list[str]]]:
+    return [
         ("Setor", filtros.setores),
         ("Vice-Presidência", filtros.vps),
         ("Status do projeto", filtros.status),
         ("Município", filtros.municipios),
+    ]
+
+
+def _contexto(ws: Worksheet, titulo: str, filtros: Filtros, versao: Versao) -> None:
+    ws.title = "Contexto"
+    linhas = [
+        ("Página", titulo),
+        ("Gerado em", data_local(datetime.now(FUSO))),
+        ("Versão dos dados", f"nº {versao.numero} · {versao.nome_arquivo} · enviada em {data_local(versao.criado_em, com_hora=False)}"),
+        *_campos_filtro(filtros),
     ]
     for rotulo, valor in linhas:
         if isinstance(valor, list):
@@ -128,10 +134,55 @@ def _tabelas(wb: Workbook, pagina: Pagina) -> None:
 
 def pagina_para_xlsx(pagina: Pagina, filtros: Filtros, versao: Versao) -> bytes:
     wb = Workbook()
-    _contexto(wb, pagina, filtros, versao)
+    _contexto(wb.active, pagina.titulo, filtros, versao)
     _indicadores(wb, pagina)
     _graficos(wb, pagina)
     _tabelas(wb, pagina)
+    saida = BytesIO()
+    wb.save(saida)
+    return saida.getvalue()
+
+
+TITULO_GRI = "Índice de conteúdo GRI — indicadores quantitativos"
+CABECALHO_GRI = ["Norma GRI", "Divulgação", "Indicador", "Valor", "Localização no relatório"]
+CABECALHO_REVISAR = ["Referência", "Motivo", "Indicador", "Valor"]
+
+
+def _resumo_filtros(filtros: Filtros) -> str:
+    escolhidos = [f"{rotulo}: {', '.join(valores)}" for rotulo, valores in _campos_filtro(filtros) if valores]
+    return " · ".join(escolhidos) or "carteira inteira"
+
+
+def indice_gri_para_xlsx(indice: IndiceGri, filtros: Filtros, versao: Versao) -> bytes:
+    """Anexo do relatório: o índice agrupado por norma e divulgação, e as referências a revisar."""
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Índice GRI"
+    ws["A1"] = TITULO_GRI
+    ws["A1"].font = Font(bold=True, size=13)
+    ws["A2"] = f"Versão nº {versao.numero} · {versao.nome_arquivo} · filtros: {_resumo_filtros(filtros)}"
+    _cabecalho(ws, 4, CABECALHO_GRI)
+    linha = 5
+    for norma in indice.normas:
+        primeira_da_norma = True
+        for div in norma.divulgacoes:
+            for k, item in enumerate(div.linhas):
+                ws.cell(row=linha, column=1, value=norma.titulo if primeira_da_norma else None)
+                ws.cell(row=linha, column=2, value=div.titulo if k == 0 else None)
+                ws.cell(row=linha, column=3, value=item.indicador)
+                ws.cell(row=linha, column=4, value=item.valor)
+                primeira_da_norma = False
+                linha += 1
+    linha += 1
+    ws.cell(row=linha, column=1, value="Referências a revisar").font = NEGRITO
+    _cabecalho(ws, linha + 1, CABECALHO_REVISAR)
+    for k, r in enumerate(indice.revisar, start=linha + 2):
+        for col, valor in enumerate([r.referencia, r.motivo, r.indicador, r.valor], start=1):
+            ws.cell(row=k, column=col, value=valor)
+    _ajustar(ws, congelar=False)
+    ws.column_dimensions["A"].width = min(max(len(n.titulo) for n in indice.normas) + 2, LARGURA_MAX) if indice.normas else 20
+    ws.freeze_panes = "A5"
+    _contexto(wb.create_sheet("Contexto"), "Índice de conteúdo GRI", filtros, versao)
     saida = BytesIO()
     wb.save(saida)
     return saida.getvalue()

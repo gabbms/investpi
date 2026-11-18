@@ -10,7 +10,8 @@ from app import repositorio
 from app.auth import usuario_atual
 from app.calculos.filtros import Filtros, aplicar_filtros
 from app.db import get_session
-from app.exportacao import pagina_para_xlsx
+from app.exportacao import indice_gri_para_xlsx, pagina_para_xlsx
+from app.gri import montar_indice_gri
 from app.paginas.comum import FUSO
 from app.models import Usuario
 from app.paginas import indicadores, pilares, qualidade, setores, temas, visao_geral
@@ -104,6 +105,16 @@ def exportar(
         pagina = _tela(base, f, caminho, "Página não encontrada")
     conteudo = pagina_para_xlsx(pagina, f, versao)
     nome = f"ASG_{caminho.replace('/', '_')}_{datetime.now(FUSO).date().isoformat()}.xlsx"
+    return Response(conteudo, media_type=XLSX, headers={"Content-Disposition": f'attachment; filename="{nome}"'})
+
+
+@router.get("/exportar-gri")
+def exportar_gri(base: Base = Depends(base_ativa), f: Filtros = Depends(filtros), s: Session = Depends(get_session)):
+    """Índice de conteúdo GRI (indicadores quantitativos) da base filtrada, no formato de anexo."""
+    hoje = datetime.now(FUSO).date()
+    indice = montar_indice_gri(aplicar_filtros(base, f), hoje)
+    conteudo = indice_gri_para_xlsx(indice, f, repositorio.versao_ativa(s))
+    nome = f"ASG_indice_gri_{hoje.isoformat()}.xlsx"
     return Response(conteudo, media_type=XLSX, headers={"Content-Disposition": f'attachment; filename="{nome}"'})
 
 

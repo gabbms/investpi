@@ -43,20 +43,32 @@ def _tem_gri(v) -> bool:
     return not vazio(v) and str(v).strip() != "-"
 
 
-def montar(base: Base) -> Pagina:
-    ctx = Contexto(base)
-    ind = base["dIndicador"].sort_values("ID Indicador")
+def valores_atuais(base: Base, ctx: Contexto | None = None) -> dict[str, str]:
+    """ID Indicador → o texto da coluna "Valor atual" do catálogo (respeita a base filtrada)."""
+    ctx = ctx or Contexto(base)
     formatos = _formatos_meta(base)
-    por_medida = {r.medida: r for r in ctx.metas}
-
-    linhas = []
-    for _, r in ind.iterrows():
+    valores: dict[str, str] = {}
+    for _, r in base["dIndicador"].iterrows():
         medida = r["Medida DAX"]
         try:
             valor = None if vazio(medida) else ctx.valor(medida)
             texto = texto_valor(valor, formato_da_medida(medida, formatos))
         except KeyError:  # medida que o sistema ainda não calcula (ex.: planilha nova)
             texto = "—"
+        valores[_texto(r["ID Indicador"])] = texto
+    return valores
+
+
+def montar(base: Base) -> Pagina:
+    ctx = Contexto(base)
+    ind = base["dIndicador"].sort_values("ID Indicador")
+    por_medida = {r.medida: r for r in ctx.metas}
+    valores = valores_atuais(base, ctx)
+
+    linhas = []
+    for _, r in ind.iterrows():
+        medida = r["Medida DAX"]
+        texto = valores[_texto(r["ID Indicador"])]
         meta = None if vazio(medida) else por_medida.get(medida)
         linhas.append({
             "id": _texto(r["ID Indicador"]),
