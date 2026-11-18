@@ -87,7 +87,7 @@ Para parar: `Ctrl+C` nos terminais 2 e 3. Para desligar o banco: `docker compose
 
 ## Site publicado
 
-O painel também está no ar em **https://<nome>.vercel.app** (Vercel + banco PostgreSQL gratuito da Neon). Cada merge na `main` publica o site de novo, sozinho.
+O painel também está no ar em **https://investpi.vercel.app** (Vercel + banco PostgreSQL gratuito da Neon). Cada merge na `main` publica o site de novo, sozinho.
 
 - Os logins são os mesmos e-mails (`admin@asg.local` e `leitor@asg.local`), mas com **outras senhas**, que ficam só nas configurações da Vercel. Peça ao administrador.
 - O site publicado tem o próprio banco: o que se envia lá não aparece no computador local, e vice-versa.
