@@ -125,7 +125,11 @@ def _tabelas(wb: Workbook, pagina: Pagina) -> None:
         for i, registro in enumerate(t.linhas, start=2):
             for j, col in enumerate(t.colunas, start=1):
                 valor = registro.get(col.chave)
-                if col.formato in COLUNAS_TEXTO:
+                numero = registro.get(f"{col.chave}_num")
+                if isinstance(numero, (int, float)) and not isinstance(numero, bool) and numero == numero:
+                    # coluna de texto na tela com o número ao lado (ex.: "Valor atual" do catálogo)
+                    _escrever(ws, i, j, numero, registro.get(f"{col.chave}_formato"))
+                elif col.formato in COLUNAS_TEXTO:
                     ws.cell(row=i, column=j, value=_texto(valor)).number_format = "@"
                 else:
                     _escrever(ws, i, j, valor, col.formato)

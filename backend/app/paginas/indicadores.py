@@ -1,6 +1,7 @@
 """Catálogo de Indicadores: os indicadores de dIndicador com GRI, ODS e valor atual."""
 from __future__ import annotations
 
+from app.calculos.medidas import MEDIDAS
 from app.paginas.comum import Contexto, linha_valor, texto_valor
 from app.paginas.tipos import Card, Coluna, FormatoValor, Pagina, Tabela
 from app.planilha.leitura import Base, vazio
@@ -43,32 +44,38 @@ def _tem_gri(v) -> bool:
     return not vazio(v) and str(v).strip() != "-"
 
 
-def valores_atuais(base: Base, ctx: Contexto | None = None) -> dict[str, str]:
-    """ID Indicador → o texto da coluna "Valor atual" do catálogo (respeita a base filtrada)."""
+def valores_e_formatos(base: Base, ctx: Contexto | None = None) -> dict[str, tuple[float | None, FormatoValor]]:
+    """ID Indicador → (valor atual, formato), respeitando a base filtrada.
+
+    Medida que o sistema ainda não calcula (ex.: planilha nova) vale None. Um erro *dentro* de uma
+    medida conhecida não é escondido.
+    """
     ctx = ctx or Contexto(base)
     formatos = _formatos_meta(base)
-    valores: dict[str, str] = {}
+    valores: dict[str, tuple[float | None, FormatoValor]] = {}
     for _, r in base["dIndicador"].iterrows():
         medida = r["Medida DAX"]
-        try:
-            valor = None if vazio(medida) else ctx.valor(medida)
-            texto = texto_valor(valor, formato_da_medida(medida, formatos))
-        except KeyError:  # medida que o sistema ainda não calcula (ex.: planilha nova)
-            texto = "—"
-        valores[_texto(r["ID Indicador"])] = texto
+        conhecida = not vazio(medida) and medida in MEDIDAS
+        valor = ctx.valor(medida) if conhecida else None
+        valores[_texto(r["ID Indicador"])] = (valor, formato_da_medida(medida, formatos) if conhecida else "num")
     return valores
+
+
+def valores_atuais(base: Base, ctx: Contexto | None = None) -> dict[str, str]:
+    """ID Indicador → o texto da coluna "Valor atual" do catálogo (respeita a base filtrada)."""
+    return {i: texto_valor(v, f) for i, (v, f) in valores_e_formatos(base, ctx).items()}
 
 
 def montar(base: Base) -> Pagina:
     ctx = Contexto(base)
     ind = base["dIndicador"].sort_values("ID Indicador")
     por_medida = {r.medida: r for r in ctx.metas}
-    valores = valores_atuais(base, ctx)
+    numeros = valores_e_formatos(base, ctx)
 
     linhas = []
     for _, r in ind.iterrows():
         medida = r["Medida DAX"]
-        texto = valores[_texto(r["ID Indicador"])]
+        valor, formato = numeros[_texto(r["ID Indicador"])]
         meta = None if vazio(medida) else por_medida.get(medida)
         linhas.append({
             "id": _texto(r["ID Indicador"]),
@@ -77,7 +84,10 @@ def montar(base: Base) -> Pagina:
             "tema": _texto(r["Tema Material"]),
             "ods": _texto(r["ODS"]),
             "gri": _texto(r["Referência GRI"]),
-            "valor": texto,
+            "valor": texto_valor(valor, formato),
+            # para o Excel: o número em si e o formato (a tela usa só o texto acima)
+            "valor_num": valor,
+            "valor_formato": formato,
             "status": meta.status if meta else None,
             "calculo": _texto(r["Cálculo"]),
             "origem": _texto(r["Tabela de Origem"]),

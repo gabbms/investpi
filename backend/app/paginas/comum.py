@@ -4,6 +4,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 from datetime import datetime
+from decimal import ROUND_HALF_UP, Decimal
 from zoneinfo import ZoneInfo
 
 import pandas as pd
@@ -56,10 +57,14 @@ def texto_meta(r: ResultadoMeta) -> str | None:
     return sinal + fmt_meta(r.meta, r.formato)
 
 
-
 def _casas(x: float, casas: int, fixo: bool) -> str:
-    """Número pt-BR com `casas` decimais (fixas, ou até `casas` sem zeros à direita)."""
-    t = f"{x:,.{casas}f}"
+    """Número pt-BR com `casas` decimais (fixas, ou até `casas` sem zeros à direita).
+
+    Arredonda o meio para cima sobre o valor exato do número, como o Intl.NumberFormat do
+    navegador (0,125 → "0,13"; o f-string do Python daria "0,12").
+    """
+    d = Decimal(x).quantize(Decimal(1).scaleb(-casas), rounding=ROUND_HALF_UP)
+    t = f"{d:,.{casas}f}"
     if not fixo and "." in t:
         t = t.rstrip("0").rstrip(".")
     return _milhar(t)
@@ -90,8 +95,9 @@ def texto_valor(v: float | None, formato: str) -> str:
     if formato == "dec":
         return _casas(v, 2, fixo=False)
     if formato == "idx":
-        return _casas(round(v), 0, fixo=False)
+        return _casas(v, 0, fixo=False)
     return _casas(v, 0, fixo=False)
+
 
 @dataclass
 class Contexto:
