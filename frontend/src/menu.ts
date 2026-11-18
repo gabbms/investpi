@@ -33,6 +33,6 @@ export const SETORES: ItemMenu[] = [
 
 export const ADMIN: ItemMenu[] = [
   { rota: '/admin/envio', rotulo: 'Enviar planilha', cor: COR.geral, pronto: true, painel: false },
-  { rota: '/admin/versoes', rotulo: 'Histórico de versões', cor: COR.geral, pronto: false, painel: false },
-  { rota: '/admin/usuarios', rotulo: 'Usuários', cor: COR.geral, pronto: false, painel: false },
+  { rota: '/admin/versoes', rotulo: 'Histórico de versões', cor: COR.geral, pronto: true, painel: false },
+  { rota: '/admin/usuarios', rotulo: 'Usuários', cor: COR.geral, pronto: true, painel: false },
 ]

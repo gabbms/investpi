@@ -853,3 +853,16 @@ select {
     transition: none !important;
   }
 }
+
+.acoes-linha {
+  display: flex;
+  gap: 1rem;
+}
+.senha-linha {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+td select {
+  padding: 0.3rem 0.4rem;
+}

@@ -5,6 +5,8 @@ import { Envio } from './pages/Envio'
 import { PaginaPainel } from './components/PaginaPainel'
 import { PILARES, SETORES } from './menu'
 import { Login } from './pages/Login'
+import { Usuarios } from './pages/Usuarios'
+import { Versoes } from './pages/Versoes'
 
 export default function App() {
   return (
@@ -33,6 +35,22 @@ export default function App() {
               element={
                 <RequireAdmin>
                   <Envio />
+                </RequireAdmin>
+              }
+            />
+            <Route
+              path="admin/versoes"
+              element={
+                <RequireAdmin>
+                  <Versoes />
+                </RequireAdmin>
+              }
+            />
+            <Route
+              path="admin/usuarios"
+              element={
+                <RequireAdmin>
+                  <Usuarios />
                 </RequireAdmin>
               }
             />

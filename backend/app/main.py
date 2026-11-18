@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import auth, importacao, painel, versoes
+from app.api import auth, importacao, painel, usuarios, versoes
 
 app = FastAPI(title="Sistema ASG · Investe Piauí")
 
@@ -23,3 +23,4 @@ app.include_router(auth.router)
 app.include_router(importacao.router)
 app.include_router(versoes.router)
 app.include_router(painel.router)
+app.include_router(usuarios.router)
