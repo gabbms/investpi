@@ -9,7 +9,7 @@ from app.auth import usuario_atual
 from app.calculos.filtros import Filtros, aplicar_filtros
 from app.db import get_session
 from app.models import Usuario
-from app.paginas import pilares, visao_geral
+from app.paginas import pilares, setores, visao_geral
 from app.paginas.tipos import Pagina
 from app.planilha.leitura import Base, vazio
 
@@ -58,6 +58,13 @@ def opcoes(base: Base = Depends(base_ativa)):
         "status": sorted(_unicos(p["Status Projeto"])),
         "municipios": sorted(_unicos(p["Município"])),
     }
+
+
+@router.get("/setor/{slug}", response_model=Pagina)
+def pagina_setor(slug: str, base: Base = Depends(base_ativa), f: Filtros = Depends(filtros)):
+    if slug not in setores.SETORES:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Setor não encontrado")
+    return setores.montar(aplicar_filtros(base, f), slug)
 
 
 @router.get("/{pagina}", response_model=Pagina)

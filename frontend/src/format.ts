@@ -17,8 +17,8 @@ function reais(v: number): string {
   for (const [base, sufixo] of escalas) {
     if (abs >= base) {
       const x = v / base
-      // uma casa decimal abaixo de 100 (42,8 bi), nenhuma acima (283 mi)
-      return `R$ ${nf(Math.abs(x) < 100 ? 1 : 0).format(x)} ${sufixo}`
+      // uma casa decimal em bi/mi abaixo de 100 (42,8 bi; 9,0 bi), nenhuma acima (283 mi) nem em mil
+      return `R$ ${fixo(sufixo !== 'mil' && Math.abs(x) < 100 ? 1 : 0).format(x)} ${sufixo}`
     }
   }
   return `R$ ${nf(0).format(v)}`

@@ -25,10 +25,10 @@ export const PILARES: ItemMenu[] = [
 ]
 
 export const SETORES: ItemMenu[] = [
-  { rota: '/setor/energia-renovavel', rotulo: 'Energia Renovável', cor: '#1565C0', pronto: false, painel: true },
-  { rota: '/setor/hidrogenio-verde', rotulo: 'Hidrogênio Verde', cor: '#00A19A', pronto: false, painel: true },
-  { rota: '/setor/mineracao', rotulo: 'Mineração', cor: '#E0A100', pronto: false, painel: true },
-  { rota: '/setor/sustentabilidade', rotulo: 'Sustentabilidade Ambiental', cor: '#1B8A4C', pronto: false, painel: true },
+  { rota: '/setor/energia-renovavel', rotulo: 'Energia Renovável', cor: '#1565C0', pronto: true, painel: true, endpoint: '/api/painel/setor/energia-renovavel' },
+  { rota: '/setor/hidrogenio-verde', rotulo: 'Hidrogênio Verde', cor: '#00A19A', pronto: true, painel: true, endpoint: '/api/painel/setor/hidrogenio-verde' },
+  { rota: '/setor/mineracao', rotulo: 'Mineração', cor: '#E0A100', pronto: true, painel: true, endpoint: '/api/painel/setor/mineracao' },
+  { rota: '/setor/sustentabilidade', rotulo: 'Sustentabilidade Ambiental', cor: '#1B8A4C', pronto: true, painel: true, endpoint: '/api/painel/setor/sustentabilidade' },
 ]
 
 export const ADMIN: ItemMenu[] = [
