@@ -3,7 +3,10 @@ from collections.abc import Callable
 
 from datetime import datetime
 
+from typing import Any
+
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app import repositorio
@@ -12,6 +15,7 @@ from app.calculos.filtros import Filtros, aplicar_filtros
 from app.db import get_session
 from app.exportacao import indice_gri_para_xlsx, pagina_para_xlsx
 from app.gri import montar_indice_gri
+from app.pesos import simular
 from app.paginas.comum import FUSO
 from app.models import Usuario
 from app.paginas import indicadores, pilares, qualidade, setores, temas, visao_geral
@@ -116,6 +120,19 @@ def exportar_gri(base: Base = Depends(base_ativa), f: Filtros = Depends(filtros)
     conteudo = indice_gri_para_xlsx(indice, f, repositorio.versao_ativa(s))
     nome = f"ASG_indice_gri_{hoje.isoformat()}.xlsx"
     return Response(conteudo, media_type=XLSX, headers={"Content-Disposition": f'attachment; filename="{nome}"'})
+
+
+class PedidoPesos(BaseModel):
+    pesos: dict[str, Any] = {}
+
+
+@router.post("/simular-pesos")
+def simular_pesos(pedido: PedidoPesos, base: Base = Depends(base_ativa), f: Filtros = Depends(filtros)):
+    """Índices oficial × simulado com os pesos propostos (nada é gravado)."""
+    try:
+        return simular(aplicar_filtros(base, f), pedido.pesos)
+    except ValueError as exc:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, str(exc)) from None
 
 
 @router.get("/qualidade", response_model=Pagina)

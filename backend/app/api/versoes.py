@@ -1,12 +1,16 @@
 """Histórico de versões e reativação (spec §7)."""
 from datetime import datetime
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app import repositorio
 from app.auth import exigir_admin
+from app.calculos.checagens import rodar_checagens
+from app.pesos import base_com_pesos
 from app.db import get_session
 from app.models import Usuario, Versao
 
@@ -32,6 +36,27 @@ class VersaoOut(BaseModel):
             nome_arquivo=v.nome_arquivo, status=v.status,
             linhas_por_aba=v.linhas_por_aba or {}, avisos=v.avisos or [], erros=v.erros or [],
         )
+
+
+class PedidoPesos(BaseModel):
+    pesos: dict[str, Any] = {}
+
+
+@router.post("/pesos", response_model=VersaoOut, status_code=status.HTTP_201_CREATED)
+def salvar_pesos(pedido: PedidoPesos, admin: Usuario = Depends(exigir_admin), s: Session = Depends(get_session)):
+    """Cria uma versão igual à ativa, só com o Peso das metas trocado (simulador de pesos)."""
+    base = repositorio.carregar_base_ativa(s)
+    ativa = s.scalar(select(Versao).where(Versao.status == "ativa"))
+    if base is None or ativa is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Ainda não há dados carregados.")
+    try:
+        nova = base_com_pesos(base, pedido.pesos)
+    except ValueError as exc:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, str(exc)) from None
+    avisos = [c.dict() for c in rodar_checagens(nova) if c.problemas]
+    v = repositorio.salvar_versao(s, nova, admin.id, f"pesos ajustados (a partir da versão {ativa.numero})", avisos)
+    s.refresh(v)
+    return VersaoOut.de(v)
 
 
 @router.get("", response_model=list[VersaoOut])
