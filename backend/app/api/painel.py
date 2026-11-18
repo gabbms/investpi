@@ -12,7 +12,7 @@ from app.calculos.filtros import Filtros, aplicar_filtros
 from app.db import get_session
 from app.exportacao import pagina_para_xlsx
 from app.models import Usuario
-from app.paginas import indicadores, pilares, setores, temas, visao_geral
+from app.paginas import indicadores, pilares, qualidade, setores, temas, visao_geral
 from app.paginas.tipos import Pagina
 from app.planilha.leitura import Base, vazio
 
@@ -96,10 +96,20 @@ def exportar(
     f: Filtros = Depends(filtros),
     s: Session = Depends(get_session),
 ):
-    pagina = _tela(base, f, caminho, "Página não encontrada")
-    conteudo = pagina_para_xlsx(pagina, f, repositorio.versao_ativa(s))
+    versao = repositorio.versao_ativa(s)
+    if caminho == "qualidade":  # a página ignora os filtros; o arquivo também
+        pagina, f = qualidade.montar(base, versao), Filtros()
+    else:
+        pagina = _tela(base, f, caminho, "Página não encontrada")
+    conteudo = pagina_para_xlsx(pagina, f, versao)
     nome = f"ASG_{caminho.replace('/', '_')}_{date.today().isoformat()}.xlsx"
     return Response(conteudo, media_type=XLSX, headers={"Content-Disposition": f'attachment; filename="{nome}"'})
+
+
+@router.get("/qualidade", response_model=Pagina)
+def pagina_qualidade(base: Base = Depends(base_ativa), _: Filtros = Depends(filtros), s: Session = Depends(get_session)):
+    """Checagens C01–C12 da versão ativa inteira: os filtros são aceitos e ignorados."""
+    return qualidade.montar(base, repositorio.versao_ativa(s))
 
 
 @router.get("/setor/{slug}", response_model=Pagina)

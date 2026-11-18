@@ -1,7 +1,6 @@
 """Exporta uma `Pagina` do painel para Excel: o mesmo conteúdo que a tela recebe."""
 from datetime import datetime
 from io import BytesIO
-from zoneinfo import ZoneInfo
 
 from openpyxl import Workbook
 from openpyxl.styles import Font
@@ -10,9 +9,9 @@ from openpyxl.worksheet.worksheet import Worksheet
 
 from app.calculos.filtros import Filtros
 from app.models import Versao
+from app.paginas.comum import FUSO, data_local
 from app.paginas.tipos import Card, Pagina
 
-FUSO = ZoneInfo("America/Fortaleza")
 FORMATOS = {"brl": '"R$" #,##0.00', "pct": "0.0%", "num": "#,##0", "dec": "0.00", "idx": "0"}
 COLUNAS_TEXTO = {"texto", "status", "simnao"}
 STATUS = {"verde": "Verde", "amarelo": "Amarelo", "vermelho": "Vermelho"}
@@ -56,19 +55,13 @@ def _cabecalho(ws: Worksheet, linha: int, rotulos: list[str]) -> None:
         ws.cell(row=linha, column=i, value=rotulo).font = NEGRITO
 
 
-def _data(d: datetime, com_hora: bool) -> str:
-    if d.tzinfo is not None:
-        d = d.astimezone(FUSO)
-    return d.strftime("%d/%m/%Y %H:%M" if com_hora else "%d/%m/%Y")
-
-
 def _contexto(wb: Workbook, pagina: Pagina, filtros: Filtros, versao: Versao) -> None:
     ws = wb.active
     ws.title = "Contexto"
     linhas = [
         ("Página", pagina.titulo),
-        ("Gerado em", _data(datetime.now(FUSO), com_hora=True)),
-        ("Versão dos dados", f"nº {versao.numero} · {versao.nome_arquivo} · enviada em {_data(versao.criado_em, False)}"),
+        ("Gerado em", data_local(datetime.now(FUSO))),
+        ("Versão dos dados", f"nº {versao.numero} · {versao.nome_arquivo} · enviada em {data_local(versao.criado_em, com_hora=False)}"),
         ("Setor", filtros.setores),
         ("Vice-Presidência", filtros.vps),
         ("Status do projeto", filtros.status),

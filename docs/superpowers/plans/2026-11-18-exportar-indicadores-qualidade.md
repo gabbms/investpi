@@ -270,7 +270,7 @@ def test_medida_desconhecida_vira_traco(cliente, sessao_teste, usuarios, h_leito
 
 **Page:**
 - title "Qualidade dos dados";
-- subtitle `"Versão nº <numero> · <nome_arquivo> · enviada por <nome> em dd/mm/aaaa hh:mm. As checagens usam a versão inteira, sem os filtros."`.
+- subtitle `"Versão nº <numero> · <nome_arquivo> · enviada por <nome> em dd/mm/aaaa hh:mm. As checagens usam a versão inteira, sem os filtros."`. Time in America/Fortaleza, as in the export. `enviado_por` is nullable, so without it the subtitle reads `"… · enviada em dd/mm/aaaa hh:mm. …"`.
 - Cards, each with formato `num`:
   - "Checagens sem problema" — how many of the 12 checks report 0 problems;
   - "Problemas encontrados" — the sum of `problemas`;
@@ -281,7 +281,7 @@ def test_medida_desconhecida_vira_traco(cliente, sessao_teste, usuarios, h_leito
 - **Table 1**, id `checagens`, "Checagens de qualidade (C01–C12)":
   - columns ID · Checagem · Tabelas · Regra · Problemas (`num`) · Situação (`status`);
   - Situação is "Atingida" when there are 0 problems, else "Atenção", so the existing green and yellow seals are reused.
-- **Table 2**, id `abas`, "Linhas por aba": columns Aba · Linhas (`num`), in the order of `linhas_por_aba`.
+- **Table 2**, id `abas`, "Linhas por aba": columns Aba · Linhas (`num`), in the order of `ABAS` in `planilha/esquema.py` (dEmpresa, dSetor, dProjeto…), then any other key. `linhas_por_aba` is stored as JSONB, and Postgres does not keep key order, so its own order cannot be used.
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -314,7 +314,22 @@ def test_qualidade_ignora_filtros(cliente, com_versao, h_leitor):
 
 def test_qualidade_exige_login(cliente, com_versao):
     assert cliente.get("/api/painel/qualidade").status_code == 401
+
+def test_abas_na_ordem_do_esquema(cliente, sessao_teste, com_versao, h_leitor):
+    sessao_teste.expire_all()  # relê linhas_por_aba do JSONB, que não guarda a ordem das chaves
+    p = cliente.get("/api/painel/qualidade", headers=h_leitor).json()
+    assert [l["aba"] for l in p["tabelas"][1]["linhas"]] == list(ABAS)
+
+def test_exportar_qualidade_ignora_filtros(cliente, com_versao, h_leitor):
+    r = cliente.get("/api/painel/exportar/qualidade?setor=Mineração", headers=h_leitor)
+    assert r.status_code == 200
+    wb = load_workbook(BytesIO(r.content))
+    ctx = {l[0]: l[1] for l in wb["Contexto"].iter_rows(values_only=True)}
+    assert ctx["Setor"] == "Todos"          # a página não usa os filtros, e o arquivo diz isso
+    assert "Checagens de qualidade (C01–C" in " ".join(wb.sheetnames)
 ```
+
+The export route special-cases `"qualidade"`: it builds the page from the unfiltered base and the active version, and writes empty filters to the Contexto sheet.
 
 
 - [ ] **Step 2: Run** `.venv\Scripts\python -m pytest tests/test_paginas_qualidade.py -v`. Expected: FAIL.

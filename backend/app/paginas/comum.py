@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 from dataclasses import dataclass, field
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 import pandas as pd
 
@@ -21,6 +23,14 @@ COR_PILAR = {
     "Visão Geral": "#4B5563",
 }
 SEMAFORO: dict[str, Semaforo] = {"Atingida": "verde", "Atenção": "amarelo", "Abaixo": "vermelho"}
+FUSO = ZoneInfo("America/Fortaleza")  # horário do Piauí (UTC−3)
+
+
+def data_local(d: datetime, com_hora: bool = True) -> str:
+    """dd/mm/aaaa [hh:mm] no horário do Piauí."""
+    if d.tzinfo is not None:
+        d = d.astimezone(FUSO)
+    return d.strftime("%d/%m/%Y %H:%M" if com_hora else "%d/%m/%Y")
 
 
 def _milhar(texto: str) -> str:
