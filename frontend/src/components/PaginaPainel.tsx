@@ -4,6 +4,7 @@ import { api, ErroApi, type Pagina } from '../api'
 import { nomeExportacao } from '../format'
 import { useAuth } from '../auth'
 import { useFiltros } from '../filtros'
+import type { ExportacaoExtra } from '../menu'
 import { CardKpi } from './CardKpi'
 import { Grafico } from './Grafico'
 import { IndiceSelo } from './IndiceSelo'
@@ -13,30 +14,38 @@ interface Props {
   endpoint: string
   /** cor do pilar ou do setor, usada na faixa do cabeçalho */
   cor: string
+  /** segundo botão de exportação (ex.: índice GRI na página Indicadores) */
+  exportacaoExtra?: ExportacaoExtra
 }
 
 type Estado = { tipo: 'carregando' } | { tipo: 'ok'; pagina: Pagina } | { tipo: 'erro'; erro: ErroApi | Error }
 
 /** Busca uma tela do painel com os filtros atuais e desenha índice, cards, gráficos e tabelas. */
-export function PaginaPainel({ endpoint, cor }: Props) {
+export function PaginaPainel({ endpoint, cor, exportacaoExtra }: Props) {
   const { query } = useFiltros()
   const { usuario } = useAuth()
   const [estado, setEstado] = useState<Estado>({ tipo: 'carregando' })
   const chave = `${endpoint}?${query.toString()}`
   const [anterior, setAnterior] = useState<Pagina | null>(null)
-  const [gerando, setGerando] = useState(false)
+  // qual exportação está sendo gerada (o rótulo do botão), para só ele mostrar "Gerando…"
+  const [gerando, setGerando] = useState<string | null>(null)
   const [erroExportar, setErroExportar] = useState<string | null>(null)
 
-  async function exportar() {
-    const caminho = endpoint.replace('/api/painel/', '')
-    setGerando(true)
+  const caminho = endpoint.replace('/api/painel/', '')
+  const exportacoes: ExportacaoExtra[] = [
+    { rotulo: 'Exportar Excel', endpoint: `/api/painel/exportar/${caminho}`, nome: caminho },
+    ...(exportacaoExtra ? [exportacaoExtra] : []),
+  ]
+
+  async function exportar(e: ExportacaoExtra) {
+    setGerando(e.rotulo)
     setErroExportar(null)
     try {
-      await api.baixar(`/api/painel/exportar/${caminho}`, nomeExportacao(caminho), query)
+      await api.baixar(e.endpoint, nomeExportacao(e.nome), query)
     } catch (erro) {
       setErroExportar(erro instanceof Error ? erro.message : 'Não foi possível gerar o arquivo.')
     } finally {
-      setGerando(false)
+      setGerando(null)
     }
   }
 
@@ -92,9 +101,11 @@ export function PaginaPainel({ endpoint, cor }: Props) {
               {erroExportar}
             </p>
           )}
-          <button type="button" className="botao secundario" onClick={exportar} disabled={gerando}>
-            {gerando ? 'Gerando…' : 'Exportar Excel'}
-          </button>
+          {exportacoes.map((e) => (
+            <button key={e.rotulo} type="button" className="botao secundario" onClick={() => exportar(e)} disabled={gerando !== null}>
+              {gerando === e.rotulo ? 'Gerando…' : e.rotulo}
+            </button>
+          ))}
         </div>
       </header>
 

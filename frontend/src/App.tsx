@@ -27,7 +27,7 @@ export default function App() {
                 <Route
                   key={i.rota}
                   path={i.rota}
-                  element={<PaginaPainel key={i.endpoint} endpoint={i.endpoint!} cor={i.cor} />}
+                  element={<PaginaPainel key={i.endpoint} endpoint={i.endpoint!} cor={i.cor} exportacaoExtra={i.exportacaoExtra} />}
                 />
               ))}
             <Route

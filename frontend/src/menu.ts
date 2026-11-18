@@ -6,6 +6,13 @@ export interface ItemMenu {
   pronto: boolean
   painel: boolean // telas do painel levam os filtros junto ao navegar
   endpoint?: string // rota da API que monta a tela
+  exportacaoExtra?: ExportacaoExtra // segundo botão de exportação no cabeçalho da tela
+}
+
+export interface ExportacaoExtra {
+  rotulo: string
+  endpoint: string // rota da API que gera o arquivo
+  nome: string // base do nome do arquivo (ASG_<nome>_<data>.xlsx)
 }
 
 export const COR = {
@@ -22,7 +29,8 @@ export const PILARES: ItemMenu[] = [
   { rota: '/social', rotulo: 'Social', cor: COR.social, pronto: true, painel: true, endpoint: '/api/painel/social' },
   { rota: '/governanca', rotulo: 'Governança', cor: COR.governanca, pronto: true, painel: true, endpoint: '/api/painel/governanca' },
   { rota: '/metas', rotulo: 'Metas ASG', cor: COR.metas, pronto: true, painel: true, endpoint: '/api/painel/metas' },
-  { rota: '/indicadores', rotulo: 'Indicadores', cor: COR.geral, pronto: true, painel: true, endpoint: '/api/painel/indicadores' },
+  { rota: '/indicadores', rotulo: 'Indicadores', cor: COR.geral, pronto: true, painel: true, endpoint: '/api/painel/indicadores',
+    exportacaoExtra: { rotulo: 'Exportar índice GRI', endpoint: '/api/painel/exportar-gri', nome: 'indice_gri' } },
   { rota: '/qualidade', rotulo: 'Qualidade dos dados', cor: COR.geral, pronto: true, painel: true, endpoint: '/api/painel/qualidade' },
 ]
 
