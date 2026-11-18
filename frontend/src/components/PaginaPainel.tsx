@@ -23,6 +23,21 @@ export function PaginaPainel({ endpoint, cor }: Props) {
   const [estado, setEstado] = useState<Estado>({ tipo: 'carregando' })
   const chave = `${endpoint}?${query.toString()}`
   const [anterior, setAnterior] = useState<Pagina | null>(null)
+  const [gerando, setGerando] = useState(false)
+  const [erroExportar, setErroExportar] = useState<string | null>(null)
+
+  async function exportar() {
+    const caminho = endpoint.replace('/api/painel/', '')
+    setGerando(true)
+    setErroExportar(null)
+    try {
+      await api.baixar(`/api/painel/exportar/${caminho}`, `ASG_${caminho.replace(/\//g, '_')}.xlsx`, query)
+    } catch (erro) {
+      setErroExportar(erro instanceof Error ? erro.message : 'Não foi possível gerar o arquivo.')
+    } finally {
+      setGerando(false)
+    }
+  }
 
   useEffect(() => {
     let ativo = true
@@ -66,8 +81,20 @@ export function PaginaPainel({ endpoint, cor }: Props) {
   return (
     <div className={`pagina ${estado.tipo === 'carregando' ? 'atualizando' : ''}`} style={{ ['--cor-pagina' as string]: cor }}>
       <header className="pagina-cabecalho">
-        <h1>{pagina.titulo}</h1>
-        {pagina.subtitulo && <p>{pagina.subtitulo}</p>}
+        <div>
+          <h1>{pagina.titulo}</h1>
+          {pagina.subtitulo && <p>{pagina.subtitulo}</p>}
+        </div>
+        <div className="exportar">
+          {erroExportar && (
+            <p className="erro" role="alert">
+              {erroExportar}
+            </p>
+          )}
+          <button type="button" className="botao secundario" onClick={exportar} disabled={gerando}>
+            {gerando ? 'Gerando…' : 'Exportar Excel'}
+          </button>
+        </div>
       </header>
 
       <div className={`linha-kpi ${pagina.indice ? 'com-indice' : ''}`}>

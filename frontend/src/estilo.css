@@ -325,6 +325,20 @@ a.menu-item.ativo:hover {
 .pagina-cabecalho {
   padding-left: 0.9rem;
   border-left: 5px solid var(--cor-pagina);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+}
+.pagina-cabecalho .exportar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.pagina-cabecalho .exportar .erro {
+  color: var(--vermelho);
+  max-width: 40ch;
 }
 .pagina-cabecalho h1 {
   font-size: 1.75rem;

@@ -1,13 +1,16 @@
 """Dados das telas do painel, com os filtros da barra superior (spec §9 e §10)."""
 from collections.abc import Callable
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from datetime import date
+
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy.orm import Session
 
 from app import repositorio
 from app.auth import usuario_atual
 from app.calculos.filtros import Filtros, aplicar_filtros
 from app.db import get_session
+from app.exportacao import pagina_para_xlsx
 from app.models import Usuario
 from app.paginas import pilares, setores, temas, visao_geral
 from app.paginas.tipos import Pagina
@@ -60,23 +63,54 @@ def opcoes(base: Base = Depends(base_ativa)):
     }
 
 
+def montar_tela(base: Base, caminho: str) -> Pagina:
+    """Monta a tela `caminho` ("ambiental", "setor/mineracao", "tema/energia-limpa"...).
+
+    Levanta KeyError se o caminho não corresponde a nenhuma tela.
+    """
+    grupo, _, slug = caminho.partition("/")
+    if grupo == "setor" and slug in setores.SETORES:
+        return setores.montar(base, slug)
+    if grupo == "tema" and slug in temas.TEMAS:
+        return temas.montar(base, slug)
+    if not slug and caminho in PAGINAS:
+        return PAGINAS[caminho](base)
+    raise KeyError(caminho)
+
+
+def _tela(base: Base, f: Filtros, caminho: str, nao_encontrada: str) -> Pagina:
+    try:
+        return montar_tela(aplicar_filtros(base, f), caminho)
+    except KeyError:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, nao_encontrada) from None
+
+
+XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+
+
+@router.get("/exportar/{caminho:path}")
+def exportar(
+    caminho: str,
+    base: Base = Depends(base_ativa),
+    f: Filtros = Depends(filtros),
+    s: Session = Depends(get_session),
+):
+    pagina = _tela(base, f, caminho, "Página não encontrada")
+    conteudo = pagina_para_xlsx(pagina, f, repositorio.versao_ativa(s))
+    nome = f"ASG_{caminho.replace('/', '_')}_{date.today().isoformat()}.xlsx"
+    return Response(conteudo, media_type=XLSX, headers={"Content-Disposition": f'attachment; filename="{nome}"'})
+
+
 @router.get("/setor/{slug}", response_model=Pagina)
 def pagina_setor(slug: str, base: Base = Depends(base_ativa), f: Filtros = Depends(filtros)):
-    if slug not in setores.SETORES:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Setor não encontrado")
-    return setores.montar(aplicar_filtros(base, f), slug)
+    return _tela(base, f, f"setor/{slug}", "Setor não encontrado")
 
 
 @router.get("/tema/{slug}", response_model=Pagina)
 def pagina_tema(slug: str, base: Base = Depends(base_ativa), f: Filtros = Depends(filtros)):
-    if slug not in temas.TEMAS:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Tema não encontrado")
-    return temas.montar(aplicar_filtros(base, f), slug)
+    return _tela(base, f, f"tema/{slug}", "Tema não encontrado")
 
 
 @router.get("/{pagina}", response_model=Pagina)
 def pagina(pagina: str, base: Base = Depends(base_ativa), f: Filtros = Depends(filtros)):
-    montar = PAGINAS.get(pagina)
-    if montar is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Página não encontrada")
-    return montar(aplicar_filtros(base, f))
+    return _tela(base, f, pagina, "Página não encontrada")

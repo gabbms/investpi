@@ -167,8 +167,9 @@ export const api = {
     dados.append('arquivo', arquivo)
     return requisitar<T>(caminho, { method: 'POST', body: dados })
   },
-  async baixar(caminho: string, nome: string) {
-    const blob = await requisitar<Blob>(caminho)
+  async baixar(caminho: string, nome: string, params?: URLSearchParams) {
+    const q = params?.toString()
+    const blob = await requisitar<Blob>(q ? `${caminho}?${q}` : caminho)
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
