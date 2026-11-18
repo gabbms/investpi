@@ -14,6 +14,27 @@
   --foco: #0b3d91;
   --raio: 6px;
   --cor-pagina: #4b5563;
+  /* tons de apoio (o claro é o visual de sempre; o escuro redefine abaixo) */
+  --superficie-suave: #eef1f2;
+  --linha-hover: #f7f9f9;
+  --fundo-suave: rgba(0, 0, 0, 0.03);
+  --sobre-tinta: #fff;
+  --botao-hover: #36434f;
+  --texto-desligado: #fff;
+  --desabilitado: #9aa4ad;
+  --topo-fundo: rgba(245, 247, 246, 0.94);
+  --sombra: rgba(31, 41, 51, 0.14);
+  --sombra-forte: rgba(31, 41, 51, 0.2);
+  --faixa-vermelha: #f1c9c9;
+  --faixa-amarela: #f6e3a8;
+  --faixa-verde: #bfe0cc;
+  --selo-verde-fundo: #dcefe3;
+  --selo-verde-texto: #12673a;
+  --selo-amarelo-fundo: #fbefc9;
+  --selo-vermelho-fundo: #f8dcdc;
+  --selo-vermelho-texto: #9c1f1f;
+  --login-fundo: #1f2933;
+  color-scheme: light;
   font-family: 'Public Sans Variable', system-ui, sans-serif;
   font-size: 15px;
   line-height: 1.5;
@@ -70,18 +91,18 @@ input {
   border: 1px solid var(--tinta);
   border-radius: var(--raio);
   background: var(--tinta);
-  color: #fff;
+  color: var(--sobre-tinta);
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
 }
 .botao:hover {
-  background: #36434f;
+  background: var(--botao-hover);
 }
 .botao:disabled {
   background: var(--linha-forte);
   border-color: var(--linha-forte);
-  color: #fff;
+  color: var(--texto-desligado);
   cursor: not-allowed;
 }
 .botao.secundario {
@@ -90,7 +111,7 @@ input {
   border-color: var(--linha-forte);
 }
 .botao.secundario:hover {
-  background: #eef1f2;
+  background: var(--superficie-suave);
 }
 .link-botao {
   border: 0;
@@ -164,7 +185,7 @@ input {
   background: var(--cor-item);
 }
 a.menu-item:hover {
-  background: #eef1f2;
+  background: var(--superficie-suave);
 }
 .menu-item.ativo,
 a.menu-item.ativo:hover {
@@ -176,7 +197,7 @@ a.menu-item.ativo:hover {
   background: #fff;
 }
 .menu-item.desabilitado {
-  color: #9aa4ad;
+  color: var(--desabilitado);
   cursor: default;
 }
 .menu-item.desabilitado::before {
@@ -196,7 +217,7 @@ a.menu-item.ativo:hover {
   align-items: flex-end;
   gap: 1rem;
   padding: 0.75rem 1.5rem;
-  background: rgba(245, 247, 246, 0.94);
+  background: var(--topo-fundo);
   backdrop-filter: blur(6px);
   border-bottom: 1px solid var(--linha);
 }
@@ -283,7 +304,7 @@ a.menu-item.ativo:hover {
   background: var(--superficie);
   border: 1px solid var(--linha-forte);
   border-radius: var(--raio);
-  box-shadow: 0 8px 24px rgba(31, 41, 51, 0.14);
+  box-shadow: 0 8px 24px var(--sombra);
 }
 .multi-opcao {
   display: flex;
@@ -294,7 +315,7 @@ a.menu-item.ativo:hover {
   cursor: pointer;
 }
 .multi-opcao:hover {
-  background: #eef1f2;
+  background: var(--superficie-suave);
 }
 .multi-opcao input {
   accent-color: var(--tinta);
@@ -455,7 +476,7 @@ a.menu-item.ativo:hover {
   padding: 0.65rem 0.75rem;
   border-radius: var(--raio);
   background: var(--tinta);
-  color: #fff;
+  color: var(--sobre-tinta);
   font-size: 0.84rem;
   font-weight: 400;
   line-height: 1.45;
@@ -524,14 +545,14 @@ a.menu-item.ativo:hover {
   height: 100%;
 }
 .faixa-vermelha {
-  background: #f1c9c9;
+  background: var(--faixa-vermelha);
   border-radius: 5px 0 0 5px;
 }
 .faixa-amarela {
-  background: #f6e3a8;
+  background: var(--faixa-amarela);
 }
 .faixa-verde {
-  background: #bfe0cc;
+  background: var(--faixa-verde);
   border-radius: 0 5px 5px 0;
 }
 .regua-marca {
@@ -641,7 +662,7 @@ td {
   border-bottom: 1px solid var(--linha);
 }
 tbody tr:hover td {
-  background: #f7f9f9;
+  background: var(--linha-hover);
 }
 .compacta td {
   padding: 0.35rem 0.5rem;
@@ -655,27 +676,27 @@ tbody tr:hover td {
   white-space: nowrap;
 }
 .selo-verde {
-  background: #dcefe3;
-  color: #12673a;
+  background: var(--selo-verde-fundo);
+  color: var(--selo-verde-texto);
 }
 .selo-amarelo {
-  background: #fbefc9;
+  background: var(--selo-amarelo-fundo);
   color: var(--amarelo-texto);
 }
 .selo-vermelho {
-  background: #f8dcdc;
-  color: #9c1f1f;
+  background: var(--selo-vermelho-fundo);
+  color: var(--selo-vermelho-texto);
 }
 .selo-neutro {
-  background: #eef1f2;
+  background: var(--superficie-suave);
   color: var(--suave);
 }
 .sim {
-  color: #12673a;
+  color: var(--selo-verde-texto);
   font-weight: 600;
 }
 .nao {
-  color: #9c1f1f;
+  color: var(--selo-vermelho-texto);
   font-weight: 600;
 }
 
@@ -703,7 +724,7 @@ tbody tr:hover td {
 .alerta {
   padding: 0.6rem 0.75rem;
   border-radius: var(--raio);
-  background: #fbefc9;
+  background: var(--selo-amarelo-fundo);
   color: var(--amarelo-texto);
 }
 
@@ -785,7 +806,7 @@ select {
   justify-content: flex-end;
   gap: 1rem;
   padding: 3rem;
-  background: var(--tinta);
+  background: var(--login-fundo);
   color: #fff;
 }
 .login-barras {
@@ -846,7 +867,7 @@ select {
     width: 260px;
     transform: translateX(-100%);
     transition: transform 0.2s;
-    box-shadow: 0 0 40px rgba(31, 41, 51, 0.2);
+    box-shadow: 0 0 40px var(--sombra-forte);
   }
   .menu-aberto .lateral {
     transform: none;
@@ -910,5 +931,59 @@ td select {
   padding: 0.15rem 0;
 }
 td.ocorrencias-celula {
-  background: var(--fundo-suave, rgba(0, 0, 0, 0.03));
+  background: var(--fundo-suave);
+}
+
+/* Tema escuro: mesmas variáveis, tons para fundo escuro. Cores dos pilares e setores não mudam;
+   o semáforo só clareia o suficiente para o texto ser legível. */
+[data-tema='escuro'] {
+  --fundo: #12171c;
+  --superficie: #1a2128;
+  --tinta: #e4e9ed;
+  --suave: #9ba7b2;
+  --linha: #2b343d;
+  --linha-forte: #3d4852;
+  --verde: #3cb371;
+  --amarelo: #e0a100;
+  --amarelo-texto: #f0c552;
+  --vermelho: #ef5350;
+  --foco: #7aa7ff;
+  --superficie-suave: #252e37;
+  --linha-hover: #20282f;
+  --fundo-suave: rgba(255, 255, 255, 0.04);
+  --sobre-tinta: #12171c;
+  --botao-hover: #c4ccd3;
+  --texto-desligado: #8c97a1;
+  --desabilitado: #5f6b76;
+  --topo-fundo: rgba(18, 23, 28, 0.94);
+  --sombra: rgba(0, 0, 0, 0.45);
+  --sombra-forte: rgba(0, 0, 0, 0.6);
+  --faixa-vermelha: #5b2a2a;
+  --faixa-amarela: #5a4812;
+  --faixa-verde: #1e4a33;
+  --selo-verde-fundo: #173d28;
+  --selo-verde-texto: #7fd6a0;
+  --selo-amarelo-fundo: #463a10;
+  --selo-vermelho-fundo: #4a2020;
+  --selo-vermelho-texto: #ff9e9b;
+  --login-fundo: #0c1014;
+  color-scheme: dark;
+}
+
+/* Botão de tema no topo */
+.tema-alternar {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--linha-forte);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--tinta);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.tema-alternar:hover {
+  background: var(--superficie-suave);
 }

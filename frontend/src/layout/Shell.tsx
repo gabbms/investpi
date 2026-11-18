@@ -5,6 +5,7 @@ import { useAuth } from '../auth'
 import { MultiSelect } from '../components/MultiSelect'
 import { useFiltros } from '../filtros'
 import { ADMIN, PILARES, SETORES, TEMAS, type ItemMenu } from '../menu'
+import { useTema } from '../tema'
 
 const PERFIL = { admin: 'Administrador', leitor: 'Leitor' } as const
 
@@ -119,6 +120,7 @@ export function Shell() {
           </button>
           {ehPainel ? <BarraFiltros /> : <div className="filtros" />}
           <div className="usuario">
+            <BotaoTema />
             <span className="usuario-nome">{usuario?.nome}</span>
             {usuario && usuario.nome !== PERFIL[usuario.perfil] && <span className="usuario-perfil">{PERFIL[usuario.perfil]}</span>}
             <button type="button" className="link-botao" onClick={sair}>
@@ -131,5 +133,21 @@ export function Shell() {
         </main>
       </div>
     </div>
+  )
+}
+
+function BotaoTema() {
+  const [tema, alternar] = useTema()
+  const escuro = tema === 'escuro'
+  return (
+    <button
+      type="button"
+      className="tema-alternar"
+      onClick={alternar}
+      aria-label={escuro ? 'Usar tema claro' : 'Usar tema escuro'}
+      title={escuro ? 'Usar tema claro' : 'Usar tema escuro'}
+    >
+      <span aria-hidden="true">{escuro ? '☀' : '☾'}</span>
+    </button>
   )
 }
