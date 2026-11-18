@@ -24,6 +24,13 @@ export const PILARES: ItemMenu[] = [
   { rota: '/metas', rotulo: 'Metas ASG', cor: COR.metas, pronto: true, painel: true, endpoint: '/api/painel/metas' },
 ]
 
+// Temas materiais: como cada tema aparece nos quatro setores.
+export const TEMAS: ItemMenu[] = [
+  { rota: '/tema/riscos-climaticos', rotulo: 'T4 Riscos climáticos e resiliência', cor: '#0277BD', pronto: true, painel: true, endpoint: '/api/painel/tema/riscos-climaticos' },
+  { rota: '/tema/energia-limpa', rotulo: 'T6 Energia limpa', cor: '#00A19A', pronto: true, painel: true, endpoint: '/api/painel/tema/energia-limpa' },
+  { rota: '/tema/licenca-social', rotulo: 'T7 Licença social', cor: '#D9730D', pronto: true, painel: true, endpoint: '/api/painel/tema/licenca-social' },
+]
+
 export const SETORES: ItemMenu[] = [
   { rota: '/setor/energia-renovavel', rotulo: 'Energia Renovável', cor: '#1565C0', pronto: true, painel: true, endpoint: '/api/painel/setor/energia-renovavel' },
   { rota: '/setor/hidrogenio-verde', rotulo: 'Hidrogênio Verde', cor: '#00A19A', pronto: true, painel: true, endpoint: '/api/painel/setor/hidrogenio-verde' },

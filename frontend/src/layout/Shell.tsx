@@ -4,7 +4,7 @@ import { api, quandoSessaoExpirar, type Opcoes } from '../api'
 import { useAuth } from '../auth'
 import { MultiSelect } from '../components/MultiSelect'
 import { useFiltros } from '../filtros'
-import { ADMIN, PILARES, SETORES, type ItemMenu } from '../menu'
+import { ADMIN, PILARES, SETORES, TEMAS, type ItemMenu } from '../menu'
 
 const PERFIL = { admin: 'Administrador', leitor: 'Leitor' } as const
 
@@ -84,6 +84,12 @@ export function Shell() {
         <nav aria-label="Telas do painel">
           <ul className="menu">
             {PILARES.map((i) => (
+              <Item key={i.rota} item={i} busca={busca} />
+            ))}
+          </ul>
+          <p className="menu-grupo">Temas Materiais</p>
+          <ul className="menu">
+            {TEMAS.map((i) => (
               <Item key={i.rota} item={i} busca={busca} />
             ))}
           </ul>
