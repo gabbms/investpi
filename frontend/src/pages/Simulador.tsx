@@ -9,6 +9,7 @@ import {
   corDoIndice,
   pesoValido,
   PESO_MAXIMO,
+  temInvalido,
   type Indices,
   type MetaSimulada,
   type Simulacao,
@@ -107,6 +108,7 @@ export function Simulador() {
   }
 
   const qtd = Object.keys(mudancas).length
+  const invalido = temInvalido(textos)
   return (
     <div className="pagina simulador" style={{ ['--cor-pagina' as string]: COR.metas }}>
       <header className="pagina-cabecalho">
@@ -134,12 +136,18 @@ export function Simulador() {
       {aviso && <p className="bloco sucesso" role="status">{aviso}</p>}
 
       <div className="simulador-acoes">
-        <span className="suave">{qtd === 0 ? 'Nenhum peso alterado.' : `${qtd} peso(s) alterado(s).`}</span>
+        <span className="suave">
+          {invalido
+            ? 'Há pesos inválidos (use 0 a 5). O cálculo usa o último valor válido.'
+            : qtd === 0
+              ? 'Nenhum peso alterado.'
+              : `${qtd} peso(s) alterado(s).`}
+        </span>
         <button type="button" className="botao secundario" onClick={restaurar} disabled={qtd === 0 && !Object.keys(textos).length}>
           Restaurar pesos oficiais
         </button>
         {usuario?.perfil === 'admin' && (
-          <button type="button" className="botao" onClick={salvar} disabled={qtd === 0 || salvando || !!erro}>
+          <button type="button" className="botao" onClick={salvar} disabled={qtd === 0 || salvando || !!erro || invalido}>
             {salvando ? 'Salvando…' : 'Salvar como nova versão'}
           </button>
         )}

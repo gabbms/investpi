@@ -85,3 +85,24 @@ def test_salvar_cria_versao_com_pesos(cliente, com_versao, h_admin, sessao_teste
     # a tela oficial passa a refletir o peso salvo
     vg = cliente.get("/api/painel/visao-geral", headers=h_admin).json()
     assert vg["indice"]["valor"] == pytest.approx(66.56, abs=0.01)
+
+
+# --- Revisão final ---------------------------------------------------------------------------------
+
+def test_simular_avalia_as_metas_uma_vez(monkeypatch):
+    from app import pesos as modulo
+    chamadas = []
+    original = modulo.avaliar_metas
+    monkeypatch.setattr(modulo, "avaliar_metas", lambda *a, **k: chamadas.append(1) or original(*a, **k))
+    d = modulo.simular(base_modelo(), {"META24": 5})
+    assert len(chamadas) == 1
+    assert d["simulado"]["Governança"] == pytest.approx(57.39, abs=0.01)
+
+
+def test_pilar_zerado_na_planilha_nao_trava_o_simulador():
+    from app.pesos import simular
+    b = base_modelo()
+    gov = b["dMetas"]["Pilar"] == "Governança"
+    b["dMetas"].loc[gov, "Peso"] = 0  # a planilha oficial já veio com o pilar todo em 0
+    d = simular(b, {"META01": 3})  # mexer em outro pilar continua funcionando
+    assert d["simulado"]["Governança"] is None

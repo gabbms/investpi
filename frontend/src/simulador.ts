@@ -36,6 +36,11 @@ export function alterados(oficial: Record<string, number>, atual: Record<string,
   return Object.fromEntries(Object.entries(atual).filter(([id, p]) => oficial[id] !== p))
 }
 
+/** Algum campo digitado fora de 0–5 (ou vazio)? Enquanto houver, salvar fica travado. */
+export function temInvalido(textos: Record<string, string>): boolean {
+  return Object.values(textos).some((t) => pesoValido(t) === null)
+}
+
 /** Faixa do índice, igual à do painel: verde ≥ 75, amarelo ≥ 50, vermelho abaixo. */
 export function corDoIndice(v: number | null): 'verde' | 'amarelo' | 'vermelho' | 'neutro' {
   if (v === null) return 'neutro'
