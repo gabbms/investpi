@@ -38,7 +38,7 @@ class Grafico(BaseModel):
 class Coluna(BaseModel):
     chave: str
     rotulo: str
-    formato: Literal["texto", "brl", "num", "pct", "dec", "status", "simnao"]
+    formato: Literal["texto", "brl", "num", "pct", "dec", "idx", "status", "simnao"]
 
 
 class Tabela(BaseModel):
@@ -48,6 +48,8 @@ class Tabela(BaseModel):
     linhas: list[dict]
     # caixa de busca acima da tabela (filtra no navegador)
     busca: bool = False
+    # linhas podem abrir uma lista (`ocorrencias`, `mais`); essas chaves não são colunas
+    expansivel: bool = False
 
 
 class Pagina(BaseModel):

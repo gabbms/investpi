@@ -2,7 +2,7 @@
 import pytest
 from openpyxl.styles import PatternFill
 
-from app.planilha.leitura import PlanilhaInvalida, ler_planilha
+from app.planilha.leitura import COLUNA_LINHA, PlanilhaInvalida, aplicar_tipos, ler_planilha
 from app.planilha.validacao import validar_estrutura
 from tests.apoio import bytes_modelo, mutar
 
@@ -156,3 +156,16 @@ def test_simnao_invalido():
 def test_arquivo_nao_xlsx():
     with pytest.raises(PlanilhaInvalida):
         ler_planilha(b"a,b\n1,2")
+
+
+def test_linha_da_planilha_sem_lacunas():
+    b = aplicar_tipos(ler_planilha(bytes_modelo()))
+    assert list(b["dProjeto"][COLUNA_LINHA][:3]) == [2, 3, 4]
+
+
+def test_linha_da_planilha_pula_linhas_em_branco():
+    conteudo = mutar(lambda wb: wb["dProjeto"].insert_rows(3))  # linha 3 do Excel fica vazia
+    b = aplicar_tipos(ler_planilha(conteudo))
+    p = b["dProjeto"]
+    assert p.loc[p["Código Projeto"] == "PROJ002", COLUNA_LINHA].item() == 4
+    assert validar_estrutura(ler_planilha(conteudo)) == []

@@ -892,3 +892,23 @@ select {
 td select {
   padding: 0.3rem 0.4rem;
 }
+.alternar {
+  border: 0;
+  background: none;
+  padding: 0 0.35rem;
+  color: var(--foco);
+  cursor: pointer;
+  font-size: 1rem;
+}
+.ocorrencias {
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem 0 0.25rem 1.5rem;
+  font-size: 0.9rem;
+}
+.ocorrencias li {
+  padding: 0.15rem 0;
+}
+td.ocorrencias-celula {
+  background: var(--fundo-suave, rgba(0, 0, 0, 0.03));
+}

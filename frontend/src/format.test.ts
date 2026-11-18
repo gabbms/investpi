@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { corDoStatus, nomeExportacao, normalizar, textoSemLinhas, valor } from './format'
+import { corDoStatus, nomeExportacao, chaveDaLinha, normalizar, textoOcorrencia, textoSemLinhas, valor } from './format'
 
 describe('valor', () => {
   it('formata reais em bilhões e milhões', () => {
@@ -55,5 +55,25 @@ describe('nomeExportacao', () => {
     const dia = new Date(2026, 10, 18, 23, 30) // 18/11/2026, 23h30 no horário local
     expect(nomeExportacao('setor/mineracao', dia)).toBe('ASG_setor_mineracao_2026-11-18.xlsx')
     expect(nomeExportacao('visao-geral', new Date(2026, 0, 5))).toBe('ASG_visao-geral_2026-01-05.xlsx')
+  })
+})
+
+describe('textoOcorrencia', () => {
+  it('mostra aba, linha e identificador', () => {
+    expect(textoOcorrencia({ aba: 'dProjeto', linha: 2, identificador: 'PROJ001', detalhe: '' })).toBe('dProjeto · linha 2 · PROJ001')
+    expect(textoOcorrencia({ aba: 'fContratos', linha: null, identificador: 'LIC001', detalhe: '' })).toBe('fContratos · LIC001')
+  })
+  it('omite o identificador vazio', () => {
+    expect(textoOcorrencia({ aba: 'dProjeto', linha: 2, identificador: '', detalhe: '' })).toBe('dProjeto · linha 2')
+  })
+})
+
+describe('chaveDaLinha', () => {
+  it('não muda com o filtro: usa o id, ou o índice original sem id', () => {
+    const linhas: Record<string, unknown>[] = [{ id: 'C01' }, { id: 'C07' }, { nome: 'x' }]
+    const filtradas = linhas.filter((l) => l.id === 'C07')
+    expect(chaveDaLinha(filtradas[0], 0 + linhas.indexOf(filtradas[0]))).toBe('C07')
+    expect(chaveDaLinha(linhas[1], 1)).toBe('C07')
+    expect(chaveDaLinha(linhas[2], 2)).toBe('2')
   })
 })

@@ -15,7 +15,7 @@ from sqlalchemy.orm import Session
 
 from app.models import LinhaDado, Versao
 from app.planilha.esquema import ABAS
-from app.planilha.leitura import Base, aplicar_tipos
+from app.planilha.leitura import COLUNA_LINHA, Base, aplicar_tipos
 
 # chave = (id, criado_em): um id reaproveitado (banco recriado) não devolve dados antigos
 _cache: dict[tuple, Base] = {}
@@ -68,7 +68,7 @@ def salvar_versao(
         for aba, df in base.items():
             if aba not in ABAS:
                 continue
-            colunas = [c for c in ABAS[aba].colunas if c in df.columns]
+            colunas = [c for c in [*ABAS[aba].colunas, COLUNA_LINHA] if c in df.columns]
             for linha in df[colunas].to_dict(orient="records"):
                 registros.append({"versao_id": versao.id, "aba": aba, "dados": _serializar_linha(linha)})
         if registros:
@@ -136,7 +136,7 @@ def _carregar(s: Session, versao_id: int) -> Base:
     for aba in abas:
         if aba not in ABAS:
             continue
-        base[aba] = pd.DataFrame(por_aba.get(aba, []), columns=ABAS[aba].colunas)
+        base[aba] = pd.DataFrame(por_aba.get(aba, []), columns=[*ABAS[aba].colunas, COLUNA_LINHA])
     return aplicar_tipos(base)
 
 

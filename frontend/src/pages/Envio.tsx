@@ -1,6 +1,7 @@
-import { useRef, useState } from 'react'
+import { Fragment, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api, ErroApi, type ErroEstrutura, type Previa, type Versao } from '../api'
+import { BotaoAbrir, ListaOcorrencias } from '../components/ListaOcorrencias'
 import { valor } from '../format'
 
 type Etapa =
@@ -19,10 +20,12 @@ export function Envio() {
   const [arquivo, setArquivo] = useState<File | null>(null)
   const [etapa, setEtapa] = useState<Etapa>({ tipo: 'inicio' })
   const [erro, setErro] = useState<string | null>(null)
+  const [abertas, setAbertas] = useState<Set<string>>(new Set())
 
   async function validar(f: File) {
     setArquivo(f)
     setErro(null)
+    setAbertas(new Set())
     setEtapa({ tipo: 'validando' })
     try {
       setEtapa({ tipo: 'previa', previa: await api.upload<Previa>('/api/importacao/previa', f) })
@@ -157,19 +160,47 @@ export function Envio() {
                 <p className="suave pequeno">Avisos não impedem a gravação.</p>
                 <table className="compacta">
                   <tbody>
-                    {previa.checagens.map((c) => (
-                      <tr key={c.id}>
-                        <td className="suave">{c.id}</td>
-                        <td title={c.regra}>{c.checagem}</td>
-                        <td>
-                          {c.problemas === 0 ? (
-                            <span className="selo selo-verde">OK</span>
-                          ) : (
-                            <span className="selo selo-amarelo">Verificar: {c.problemas}</span>
+                    {previa.checagens.map((c) => {
+                      const aberta = abertas.has(c.id)
+                      const temLista = !!c.ocorrencias?.length
+                      return (
+                        <Fragment key={c.id}>
+                          <tr>
+                            <td>
+                              {temLista && (
+                                <BotaoAbrir
+                                  aberto={aberta}
+                                  aoAlternar={() =>
+                                    setAbertas((a) => {
+                                      const n = new Set(a)
+                                      if (!n.delete(c.id)) n.add(c.id)
+                                      return n
+                                    })
+                                  }
+                                  rotulo={c.id}
+                                />
+                              )}
+                            </td>
+                            <td className="suave">{c.id}</td>
+                            <td title={c.regra}>{c.checagem}</td>
+                            <td>
+                              {c.problemas === 0 ? (
+                                <span className="selo selo-verde">OK</span>
+                              ) : (
+                                <span className="selo selo-amarelo">Verificar: {c.problemas}</span>
+                              )}
+                            </td>
+                          </tr>
+                          {aberta && temLista && (
+                            <tr>
+                              <td className="ocorrencias-celula" colSpan={4}>
+                                <ListaOcorrencias ocorrencias={c.ocorrencias!} mais={c.mais} />
+                              </td>
+                            </tr>
                           )}
-                        </td>
-                      </tr>
-                    ))}
+                        </Fragment>
+                      )
+                    })}
                   </tbody>
                 </table>
               </section>

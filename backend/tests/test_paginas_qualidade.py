@@ -64,3 +64,30 @@ def test_exportar_qualidade_ignora_filtros(cliente, com_versao, h_leitor):
     ctx = {l[0]: l[1] for l in wb["Contexto"].iter_rows(values_only=True)}
     assert ctx["Setor"] == "Todos"          # a página não usa os filtros, e o arquivo diz isso
     assert "Checagens de qualidade (C01–C" in " ".join(wb.sheetnames)
+
+
+def test_qualidade_mostra_ocorrencias(cliente, sessao_teste, usuarios, h_leitor):
+    b = base_modelo()
+    b["fFinanceiro"]["Valor Pago"] = 2 * b["fFinanceiro"]["Valor Empenhado"]   # C09 em todas as 432 linhas
+    repositorio.limpar_cache()
+    repositorio.salvar_versao(sessao_teste, b, usuarios["admin"].id, "x.xlsx", [])
+    t = cliente.get("/api/painel/qualidade", headers=h_leitor).json()["tabelas"][0]
+    assert t["expansivel"] is True
+    c09 = next(l for l in t["linhas"] if l["id"] == "C09")
+    assert len(c09["ocorrencias"]) == 50 and c09["mais"] == 382
+    assert c09["ocorrencias"][0]["identificador"] == "FIN001-01"
+    r = cliente.get("/api/painel/exportar/qualidade", headers=h_leitor)
+    wb = load_workbook(BytesIO(r.content))
+    assert "Problemas" in wb.sheetnames and wb["Problemas"].max_row == 1 + 432
+    repositorio.limpar_cache()
+
+
+def test_exportar_problemas_linha_sem_separador_de_milhar(cliente, sessao_teste, usuarios, h_leitor):
+    b = base_modelo()
+    b["fFinanceiro"]["Valor Pago"] = 2 * b["fFinanceiro"]["Valor Empenhado"]
+    repositorio.limpar_cache()
+    repositorio.salvar_versao(sessao_teste, b, usuarios["admin"].id, "x.xlsx", [])
+    r = cliente.get("/api/painel/exportar/qualidade", headers=h_leitor)
+    ws = load_workbook(BytesIO(r.content))["Problemas"]
+    assert ws.cell(row=2, column=[c.value for c in ws[1]].index("Linha") + 1).number_format == "0"
+    repositorio.limpar_cache()

@@ -46,6 +46,28 @@ def test_previa_base_valida(cliente, com_versao, h_admin):
     assert all(c["problemas"] == 0 for c in corpo["checagens"])
 
 
+def _quebra_c07(wb):
+    ws = wb["dProjeto"]
+    cab = [c.value for c in ws[1]]
+    ws.cell(2, cab.index("Investimento Realizado") + 1).value = 10 * ws.cell(2, cab.index("Investimento Previsto") + 1).value
+
+
+def test_previa_traz_ocorrencias(cliente, com_versao, h_admin):
+    corpo = cliente.post("/api/importacao/previa", files=arquivo(mutar(_quebra_c07)), headers=h_admin).json()
+    c07 = next(c for c in corpo["checagens"] if c["id"] == "C07")
+    assert c07["problemas"] == 1 and c07["mais"] == 0
+    [o] = c07["ocorrencias"]
+    assert o["linha"] == 2 and o["identificador"] == "PROJ001" and o["aba"] == "dProjeto"
+
+
+def test_confirmar_guarda_so_contagens(cliente, com_versao, h_admin):
+    r = cliente.post("/api/importacao/confirmar", files=arquivo(mutar(_quebra_c07)), headers=h_admin)
+    assert r.status_code == 201, r.text
+    avisos = r.json()["versao"]["avisos"]
+    assert [a["id"] for a in avisos] == ["C07"]
+    assert all("ocorrencias" not in a and "mais" not in a for a in avisos)
+
+
 def test_previa_com_erro(cliente, com_versao, h_admin):
     conteudo = mutar(lambda wb: wb.remove(wb["fSocial"]))
     corpo = cliente.post("/api/importacao/previa", files=arquivo(conteudo), headers=h_admin).json()
