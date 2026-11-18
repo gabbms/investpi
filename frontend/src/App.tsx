@@ -3,7 +3,7 @@ import { AuthProvider, RequireAdmin, RequireAuth } from './auth'
 import { Shell } from './layout/Shell'
 import { Envio } from './pages/Envio'
 import { PaginaPainel } from './components/PaginaPainel'
-import { PILARES, SETORES } from './menu'
+import { PILARES, SETORES, TEMAS } from './menu'
 import { Login } from './pages/Login'
 import { Usuarios } from './pages/Usuarios'
 import { Versoes } from './pages/Versoes'
@@ -21,7 +21,7 @@ export default function App() {
               </RequireAuth>
             }
           >
-            {[...PILARES, ...SETORES]
+            {[...PILARES, ...TEMAS, ...SETORES]
               .filter((i) => i.pronto && i.endpoint)
               .map((i) => (
                 <Route

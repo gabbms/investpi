@@ -102,6 +102,24 @@ def indice_geral(base: Base, resultados: list[ResultadoMeta] | None = None) -> f
     return None if not reais else sum(reais) / 3
 
 
+def indice_tema(base: Base, tema: str, resultados: list[ResultadoMeta] | None = None) -> float | None:
+    """Índice de um tema material (T4, T6, T7…): mesmo método do índice de pilar,
+    sobre as metas de dMetas cuja coluna `Tema Material` é `tema`.
+
+    Não entra no Índice ASG Geral.
+    """
+    resultados = resultados if resultados is not None else avaliar_metas(base)
+    metas = base["dMetas"]
+    if "Tema Material" not in metas.columns:
+        return None
+    ids_do_tema = {
+        id_meta
+        for id_meta, codigo in zip(metas["ID Meta"], metas["Tema Material"])
+        if not vazio(codigo) and str(codigo).strip() == tema
+    }
+    return _indice([r for r in resultados if r.id_meta in ids_do_tema])
+
+
 def contar_status(base: Base, status: Status) -> float:
     return float(sum(1 for r in avaliar_metas(base) if r.status == status))
 

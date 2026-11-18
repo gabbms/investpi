@@ -5,7 +5,7 @@ import pytest
 
 from app.calculos.filtros import Filtros, aplicar_filtros
 from app.calculos.medidas import calcular
-from app.calculos.metas import avaliar_metas, cor_indice, indice_geral, indice_pilar, status_medida
+from app.calculos.metas import avaliar_metas, cor_indice, indice_geral, indice_pilar, indice_tema, status_medida
 from app.planilha.esquema import MEDIDAS_META
 from tests.apoio import base_modelo
 
@@ -102,3 +102,31 @@ def test_filtro_vazio(base):
     assert indice_geral(b) is None
     for medida in MEDIDAS_META:
         calcular(b, medida)
+
+
+def test_indice_tema_base_completa():
+    b = base_modelo()
+    assert indice_tema(b, "T4") == pytest.approx(50.0, abs=0.01)
+    assert indice_tema(b, "T6") == pytest.approx(99.87, abs=0.01)
+    assert indice_tema(b, "T7") == pytest.approx(71.53, abs=0.01)
+
+
+def test_indice_tema_com_filtro_mineracao():
+    b = aplicar_filtros(base_modelo(), Filtros(setores=["Mineração"], vps=[], status=[], municipios=[]))
+    assert indice_tema(b, "T4") == pytest.approx(75.0, abs=0.01)
+    assert indice_tema(b, "T6") == pytest.approx(92.59, abs=0.01)
+    assert indice_tema(b, "T7") == pytest.approx(63.89, abs=0.01)
+
+
+def test_indice_tema_inexistente_e_none():
+    assert indice_tema(base_modelo(), "T99") is None
+
+
+def test_indice_tema_ignora_espacos_no_codigo():
+    b = base_modelo()
+    b["dMetas"]["Tema Material"] = b["dMetas"]["Tema Material"].map(lambda v: f" {v} ")
+    assert indice_tema(b, "T4") == pytest.approx(50.0, abs=0.01)
+
+
+def test_indice_geral_nao_muda():
+    assert round(indice_geral(base_modelo())) == 68
