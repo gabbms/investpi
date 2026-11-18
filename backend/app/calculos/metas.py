@@ -55,7 +55,8 @@ def _atingimento(v: Valor, meta: float | None, limite: float | None, maior: bool
     return 1.0 if v <= mt else (0.5 if v <= lim else 0.0)
 
 
-def avaliar_metas(base: Base) -> list[ResultadoMeta]:
+def avaliar_metas(base: Base, pesos: dict[str, int] | None = None) -> list[ResultadoMeta]:
+    """Avalia as metas de dMetas. `pesos` (opcional) substitui o Peso da planilha por ID Meta (simulador)."""
     metas = base["dMetas"].sort_values("ID Meta")
     res = []
     for _, r in metas.iterrows():
@@ -68,7 +69,7 @@ def avaliar_metas(base: Base) -> list[ResultadoMeta]:
                 pilar=r["Pilar"],
                 indicador=r["Indicador"],
                 medida=r["Medida"],
-                peso=int(_num(r["Peso"]) or 0),
+                peso=pesos[r["ID Meta"]] if pesos and r["ID Meta"] in pesos else int(_num(r["Peso"]) or 0),
                 valor=v,
                 meta=meta,
                 limite=limite,
