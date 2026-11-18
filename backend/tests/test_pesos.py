@@ -106,3 +106,43 @@ def test_pilar_zerado_na_planilha_nao_trava_o_simulador():
     b["dMetas"].loc[gov, "Peso"] = 0  # a planilha oficial já veio com o pilar todo em 0
     d = simular(b, {"META01": 3})  # mexer em outro pilar continua funcionando
     assert d["simulado"]["Governança"] is None
+
+
+# --- Detalhes da revisão (corpo estranho, cache, versão de origem, modelo único) -----------------
+
+@pytest.mark.parametrize("peso", [True, "3", None, 10**20])
+def test_corpo_estranho_400(cliente, com_versao, h_leitor, peso):
+    assert simular(cliente, h_leitor, {"META24": peso}).status_code == 400
+
+
+def test_salvar_nao_mexe_na_base_em_cache(cliente, com_versao, h_admin, sessao_teste):
+    antes = repositorio.carregar_base_ativa(sessao_teste)["dMetas"].copy(deep=True)
+    em_cache = repositorio.carregar_base_ativa(sessao_teste)
+    assert cliente.post("/api/versoes/pesos", json={"pesos": {"META24": 5}}, headers=h_admin).status_code == 201
+    assert em_cache["dMetas"].equals(antes)
+
+
+def test_salvar_depois_de_reativar_copia_a_base_nova(cliente, com_versao, h_admin, sessao_teste):
+    assert cliente.post("/api/versoes/pesos", json={"pesos": {"META24": 5}}, headers=h_admin).status_code == 201
+    v1 = [v for v in repositorio.listar_versoes(sessao_teste) if v.numero == 1][0]
+    assert cliente.post(f"/api/versoes/{v1.id}/ativar", headers=h_admin).status_code == 200
+    r = cliente.post("/api/versoes/pesos", json={"pesos": {"META01": 1}}, headers=h_admin)
+    assert r.status_code == 201 and r.json()["nome_arquivo"] == "pesos ajustados (a partir da versão 1)"
+    repositorio.limpar_cache()
+    pesos = repositorio.carregar_base_ativa(sessao_teste)["dMetas"].set_index("ID Meta")["Peso"]
+    assert int(pesos["META01"]) == 1 and int(pesos["META24"]) == 3  # o 5 da versão 2 não veio junto
+
+
+def test_salvar_copia_exatamente_a_versao_do_nome(cliente, com_versao, h_admin, monkeypatch):
+    # nome e dados vêm da mesma consulta: a rota não pode buscar "a ativa" duas vezes
+    def proibido(*a, **k):
+        raise AssertionError("carregar_base_ativa faz uma segunda consulta à versão ativa")
+    monkeypatch.setattr(repositorio, "carregar_base_ativa", proibido)
+    r = cliente.post("/api/versoes/pesos", json={"pesos": {"META24": 5}}, headers=h_admin)
+    assert r.status_code == 201, r.text
+
+
+def test_um_modelo_de_pedido_so():
+    from app import pesos
+    from app.api import painel, versoes
+    assert painel.PedidoPesos is pesos.PedidoPesos and versoes.PedidoPesos is pesos.PedidoPesos

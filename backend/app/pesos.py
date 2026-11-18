@@ -4,10 +4,18 @@ from __future__ import annotations
 from dataclasses import replace
 from typing import Any
 
+from pydantic import BaseModel
+
 from app.calculos.metas import PILARES, avaliar_metas, indice_geral, indice_pilar
 from app.planilha.leitura import Base, vazio
 
 PESO_MAXIMO = 5
+
+
+class PedidoPesos(BaseModel):
+    """Corpo das rotas de simular e de salvar pesos: {"pesos": {ID Meta: peso}}."""
+
+    pesos: dict[str, Any] = {}
 
 
 def validar_pesos(base: Base, pesos: dict[str, Any]) -> None:

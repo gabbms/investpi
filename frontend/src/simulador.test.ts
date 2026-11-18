@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { alterados, pesoValido, temInvalido } from './simulador'
+import { alterados, pesoValido, sequencia, simuladoVisivel, temInvalido } from './simulador'
 
 describe('pesoValido', () => {
   it('aceita inteiros de 0 a 5', () => {
@@ -28,5 +28,22 @@ describe('temInvalido', () => {
     expect(temInvalido({ A: '50' })).toBe(true)
     expect(temInvalido({ A: '' })).toBe(true)
     expect(temInvalido({})).toBe(false)
+  })
+})
+
+describe('sequencia', () => {
+  it('só a resposta do pedido mais recente vale (quem digita rápido não vê resultado antigo)', () => {
+    const seq = sequencia()
+    const primeiro = seq.novo()
+    const segundo = seq.novo()
+    expect(seq.vigente(primeiro)).toBe(false)
+    expect(seq.vigente(segundo)).toBe(true)
+  })
+})
+
+describe('simuladoVisivel', () => {
+  it('com erro na tela, o simulado vira "—" em vez de mostrar o resultado anterior', () => {
+    expect(simuladoVisivel(57.4, null)).toBe(57.4)
+    expect(simuladoVisivel(57.4, 'O pilar Governança precisa...')).toBeNull()
   })
 })

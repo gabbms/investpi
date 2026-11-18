@@ -1065,7 +1065,13 @@ td.ocorrencias-celula {
   border-color: var(--vermelho);
   box-shadow: 0 0 0 1px var(--vermelho);
 }
+/* linha com peso alterado: faixa na cor da página à esquerda e fundo neutro
+   (fundo amarelo se confundia com o selo "Atenção") */
 tr.linha-alterada td {
-  background: var(--selo-amarelo-fundo);
+  background: var(--superficie-suave);
+}
+tr.linha-alterada td:first-child {
+  box-shadow: inset 4px 0 0 var(--cor-pagina);
+  font-weight: 600;
 }
 

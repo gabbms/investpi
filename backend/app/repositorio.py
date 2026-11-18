@@ -140,13 +140,18 @@ def _carregar(s: Session, versao_id: int) -> Base:
     return aplicar_tipos(base)
 
 
+def carregar_base_da_versao(s: Session, versao_id: int, criado_em) -> Base:
+    """Base de uma versão específica (usa o mesmo cache da versão ativa)."""
+    chave = (versao_id, criado_em)
+    if chave not in _cache:
+        if len(_cache) >= _CACHE_MAX:
+            _cache.pop(next(iter(_cache)))
+        _cache[chave] = _carregar(s, versao_id)
+    return _cache[chave]
+
+
 def carregar_base_ativa(s: Session) -> Base | None:
     ativa = s.execute(select(Versao.id, Versao.criado_em).where(Versao.status == "ativa")).first()
     if ativa is None:
         return None
-    chave = (ativa.id, ativa.criado_em)
-    if chave not in _cache:
-        if len(_cache) >= _CACHE_MAX:
-            _cache.pop(next(iter(_cache)))
-        _cache[chave] = _carregar(s, ativa.id)
-    return _cache[chave]
+    return carregar_base_da_versao(s, ativa.id, ativa.criado_em)
