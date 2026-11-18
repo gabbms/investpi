@@ -73,3 +73,10 @@ def test_promover_a_admin(cliente, h_admin, usuarios):
 
 def test_usuario_inexistente(cliente, h_admin):
     assert cliente.patch("/api/usuarios/9999", json={"nome": "x"}, headers=h_admin).status_code == 404
+
+
+def test_senha_longa_demais_e_recusada_sem_erro_interno(cliente, h_admin, usuarios):
+    longa = "á" * 40  # 80 bytes em UTF-8: acima do limite de 72 bytes do bcrypt
+    assert criar(cliente, h_admin, senha=longa).status_code == 422
+    r = cliente.patch(f"/api/usuarios/{usuarios['leitor'].id}", json={"senha": longa}, headers=h_admin)
+    assert r.status_code == 422

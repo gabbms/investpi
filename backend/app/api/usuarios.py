@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -15,6 +15,13 @@ router = APIRouter(prefix="/api/usuarios", tags=["usuários"])
 
 Perfil = Literal["admin", "leitor"]
 SENHA_MINIMA = 8
+SENHA_MAXIMA_BYTES = 72  # limite do bcrypt
+
+
+def _senha_cabe_no_bcrypt(senha: str | None) -> str | None:
+    if senha is not None and len(senha.encode("utf-8")) > SENHA_MAXIMA_BYTES:
+        raise ValueError("A senha deve ter no máximo 72 bytes (cerca de 72 caracteres sem acento).")
+    return senha
 
 
 class UsuarioOut(BaseModel):
@@ -36,12 +43,16 @@ class NovoUsuario(BaseModel):
     senha: str = Field(min_length=SENHA_MINIMA)
     perfil: Perfil
 
+    _senha = field_validator("senha")(_senha_cabe_no_bcrypt)
+
 
 class AlteracaoUsuario(BaseModel):
     nome: str | None = Field(default=None, min_length=1, max_length=255)
     perfil: Perfil | None = None
     ativo: bool | None = None
     senha: str | None = Field(default=None, min_length=SENHA_MINIMA)
+
+    _senha = field_validator("senha")(_senha_cabe_no_bcrypt)
 
 
 @router.get("", response_model=list[UsuarioOut])

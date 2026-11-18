@@ -5,7 +5,7 @@ import { useAuth } from '../auth'
 const PERFIS = { admin: 'Administrador', leitor: 'Leitor' } as const
 
 function mensagemDe(e: unknown): string {
-  if (e instanceof ErroApi && Array.isArray(e.detalhe)) return 'Confira os campos: e-mail válido e senha com pelo menos 8 caracteres.'
+  if (e instanceof ErroApi && Array.isArray(e.detalhe)) return 'Confira os campos: e-mail válido e senha de 8 a 72 caracteres.'
   return e instanceof Error ? e.message : 'Não foi possível salvar.'
 }
 
