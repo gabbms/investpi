@@ -17,7 +17,8 @@ from app.models import LinhaDado, Versao
 from app.planilha.esquema import ABAS
 from app.planilha.leitura import Base, aplicar_tipos
 
-_cache: dict[int, Base] = {}
+# chave = (id, criado_em): um id reaproveitado (banco recriado) não devolve dados antigos
+_cache: dict[tuple, Base] = {}
 _CACHE_MAX = 3
 
 
@@ -76,7 +77,6 @@ def salvar_versao(
     except Exception:
         s.rollback()
         raise
-    _cache.pop(versao.id, None)
     return versao
 
 
@@ -141,11 +141,12 @@ def _carregar(s: Session, versao_id: int) -> Base:
 
 
 def carregar_base_ativa(s: Session) -> Base | None:
-    versao_id = s.scalar(select(Versao.id).where(Versao.status == "ativa"))
-    if versao_id is None:
+    ativa = s.execute(select(Versao.id, Versao.criado_em).where(Versao.status == "ativa")).first()
+    if ativa is None:
         return None
-    if versao_id not in _cache:
+    chave = (ativa.id, ativa.criado_em)
+    if chave not in _cache:
         if len(_cache) >= _CACHE_MAX:
             _cache.pop(next(iter(_cache)))
-        _cache[versao_id] = _carregar(s, versao_id)
-    return _cache[versao_id]
+        _cache[chave] = _carregar(s, ativa.id)
+    return _cache[chave]

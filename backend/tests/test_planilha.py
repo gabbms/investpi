@@ -1,28 +1,10 @@
 """Leitura e validação estrutural da planilha (spec §6 e §7)."""
-from io import BytesIO
-from pathlib import Path
-
-import openpyxl
 import pytest
 from openpyxl.styles import PatternFill
 
 from app.planilha.leitura import PlanilhaInvalida, ler_planilha
 from app.planilha.validacao import validar_estrutura
-
-MODELO = Path(__file__).resolve().parent.parent / "dados" / "base_modelo.xlsx"
-
-
-def bytes_modelo() -> bytes:
-    return MODELO.read_bytes()
-
-
-def mutar(alterar) -> bytes:
-    """Abre o modelo com openpyxl, aplica `alterar(wb)` e devolve os bytes."""
-    wb = openpyxl.load_workbook(BytesIO(bytes_modelo()))
-    alterar(wb)
-    buf = BytesIO()
-    wb.save(buf)
-    return buf.getvalue()
+from tests.apoio import bytes_modelo, mutar
 
 
 def coluna(ws, nome: str) -> int:
