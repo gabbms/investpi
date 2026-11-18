@@ -1,5 +1,5 @@
 // Cliente HTTP da API. Anexa o token de login e volta ao login se a sessão acabar (401).
-import type { Formato } from './format'
+import { textoDoErro, type Formato } from './format'
 
 export type Semaforo = 'verde' | 'amarelo' | 'vermelho'
 
@@ -114,7 +114,7 @@ export class ErroApi extends Error {
   status: number
   detalhe: unknown
   constructor(status: number, detalhe: unknown) {
-    super(typeof detalhe === 'string' ? detalhe : `Erro ${status}`)
+    super(textoDoErro(status, detalhe))
     this.status = status
     this.detalhe = detalhe
   }

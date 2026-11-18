@@ -89,3 +89,16 @@ export function textoOcorrencia(o: Ocorrencia): string {
 export function chaveDaLinha(linha: Record<string, unknown>, indiceOriginal: number): string {
   return linha.id != null ? String(linha.id) : String(indiceOriginal)
 }
+
+/** Limite de envio de planilha (a Vercel corta pedidos acima de 4,5 MB; o servidor usa 4 MB). */
+export const TAMANHO_MAXIMO_ENVIO = 4 * 1024 * 1024
+export function arquivoGrandeDemais(bytes: number): boolean {
+  return bytes > TAMANHO_MAXIMO_ENVIO
+}
+
+/** Texto de um erro da API; o 413 sem detalhe (cortado antes de chegar ao servidor) ganha explicação. */
+export function textoDoErro(status: number, detalhe: unknown): string {
+  if (typeof detalhe === 'string') return detalhe
+  if (status === 413) return 'Arquivo maior que 4 MB. A planilha modelo tem cerca de 0,2 MB.'
+  return `Erro ${status}`
+}

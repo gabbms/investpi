@@ -126,7 +126,7 @@ def test_exportar_exige_login(cliente, com_versao):
   - While the download runs, the button reads "Gerando…" and is disabled. A failed download shows the error message next to the button.
   - Run `npm run build` and `npx vitest run` in `frontend/`. Expected: no errors.
 - [ ] **Step 6: Check in the browser.**
-  1. Open Visão Geral and click Exportar Excel. The file opens in Excel with the 4 sheets plus one per table, and the "Índice ASG Geral" row shows 68.
+  1. Open Visão Geral and click Exportar Excel. The file opens in Excel with the 3 sheets (Contexto, Indicadores, Gráficos) plus one per table, and the "Índice ASG Geral" row shows 68.
   2. Choose Setor = Mineração, open the Mineração page and export again. The Contexto sheet shows "Setor: Mineração".
 - [ ] **Step 7: Commit** — `git commit -m "feat: export any dashboard page to Excel"`
 

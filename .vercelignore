@@ -1,0 +1,9 @@
+# Fora do que a Vercel envia ao publicar pela linha de comando (o deploy pelo GitHub já ignora o .gitignore)
+backend/.venv/
+**/node_modules/
+**/__pycache__/
+frontend/dist/
+.superpowers/
+docs/
+backend/tests/
+.env

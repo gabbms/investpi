@@ -96,8 +96,10 @@ O painel também está no ar em **https://investpi.vercel.app** (Vercel + banco 
 
 1. Em vercel.com, entre com o GitHub, clique em **Add New → Project** e importe este repositório (pasta raiz). As configurações de build vêm do `vercel.json`.
 2. No projeto, abra **Storage → Create Database → Neon** (plano gratuito) e conecte a todos os ambientes. Isso cria a variável `DATABASE_URL`.
-3. Em **Settings → Environment Variables**, adicione `JWT_SEGREDO` (texto longo e aleatório), `JWT_HORAS=8`, `ADMIN_EMAIL`, `ADMIN_SENHA`, `LEITOR_EMAIL` e `LEITOR_SENHA`, e publique de novo (**Redeploy**).
-4. Uma única vez, no computador, carregue o banco da Neon com as mesmas variáveis definidas no terminal (não no `.env`), na pasta `backend`: `.venv\Scripts\python -m app.cli inicializar`.
+3. Uma única vez, no computador, carregue o banco da Neon (antes de publicar de novo, para o site já abrir com dados). Defina no terminal, não no `.env`, o `DATABASE_URL` da Neon e as variáveis `ADMIN_EMAIL`, `ADMIN_SENHA`, `LEITOR_EMAIL` e `LEITOR_SENHA`; depois, na pasta `backend`: `.venv\Scripts\python -m app.cli inicializar`. O comando recusa as senhas de demonstração deste README num banco na nuvem.
+4. Em **Settings → Environment Variables**, adicione `JWT_SEGREDO` (texto longo e aleatório), `JWT_HORAS=8` e as mesmas `ADMIN_*`/`LEITOR_*`, e publique de novo (**Redeploy**).
+
+As publicações de teste da Vercel (uma por PR aberto) usam o mesmo banco do site oficial, por isso só leem os dados: enviar planilha, salvar pesos, ativar versão e mexer em usuários ficam bloqueados nelas.
 
 ## Problemas comuns
 

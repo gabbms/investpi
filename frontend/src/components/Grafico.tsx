@@ -130,9 +130,27 @@ function useLargura<T extends HTMLElement>() {
   return [ref, largura] as const
 }
 
+// Cores neutras vêm das variáveis de estilo.css (uma fonte só para tela e gráficos).
+const lerVariavelCss = (nome: string) => getComputedStyle(document.documentElement).getPropertyValue(nome)
+
+/** Muda uma vez quando as fontes do site terminam de carregar: os nomes são medidos de novo com a fonte certa. */
+function useFontesProntas() {
+  const [prontas, setProntas] = useState(() => typeof document === 'undefined' || document.fonts?.status === 'loaded')
+  useEffect(() => {
+    if (prontas || !document.fonts) return
+    let vivo = true
+    document.fonts.ready.then(() => vivo && setProntas(true))
+    return () => {
+      vivo = false
+    }
+  }, [prontas])
+  return prontas
+}
+
 export function Grafico({ grafico }: { grafico: TGrafico }) {
   const [ref, largura] = useLargura<HTMLDivElement>()
   const [tema] = useTema()
+  useFontesProntas() // re-render ao carregar a fonte: rotulosColunas mede o texto de novo
   const linhas = grafico.categorias.length
   const altura =
     grafico.tipo === 'barra_h' || grafico.tipo === 'barra_h_empilhada' ? Math.max(260, linhas * 30 + 80) : 320
@@ -144,7 +162,7 @@ export function Grafico({ grafico }: { grafico: TGrafico }) {
         {vazio ? (
           <p className="vazio">Nenhum dado para os filtros escolhidos.</p>
         ) : (
-          <ReactECharts option={opcoes(grafico, largura, coresNeutras(tema), tema)} style={{ height: altura }} notMerge lazyUpdate />
+          <ReactECharts option={opcoes(grafico, largura, coresNeutras(tema, lerVariavelCss), tema)} style={{ height: altura }} notMerge lazyUpdate />
         )}
       </div>
     </figure>
