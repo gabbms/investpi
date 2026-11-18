@@ -32,6 +32,8 @@ export const PILARES: ItemMenu[] = [
   { rota: '/indicadores', rotulo: 'Indicadores', cor: COR.geral, pronto: true, painel: true, endpoint: '/api/painel/indicadores',
     exportacaoExtra: { rotulo: 'Exportar índice GRI', endpoint: '/api/painel/exportar-gri', nome: 'indice_gri' } },
   { rota: '/qualidade', rotulo: 'Qualidade dos dados', cor: COR.geral, pronto: true, painel: true, endpoint: '/api/painel/qualidade' },
+  // tela própria (pages/Simulador.tsx), sem endpoint genérico
+  { rota: '/simulador', rotulo: 'Simulador de pesos', cor: COR.metas, pronto: true, painel: true },
 ]
 
 // Temas materiais: como cada tema aparece nos quatro setores.

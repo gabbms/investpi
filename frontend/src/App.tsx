@@ -7,6 +7,7 @@ import { PILARES, SETORES, TEMAS } from './menu'
 import { Login } from './pages/Login'
 import { Usuarios } from './pages/Usuarios'
 import { Versoes } from './pages/Versoes'
+import { Simulador } from './pages/Simulador'
 
 export default function App() {
   return (
@@ -30,6 +31,7 @@ export default function App() {
                   element={<PaginaPainel key={i.endpoint} endpoint={i.endpoint!} cor={i.cor} exportacaoExtra={i.exportacaoExtra} />}
                 />
               ))}
+            <Route path="simulador" element={<Simulador />} />
             <Route
               path="admin/envio"
               element={

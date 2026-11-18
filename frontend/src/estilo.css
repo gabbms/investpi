@@ -987,3 +987,85 @@ td.ocorrencias-celula {
 .tema-alternar:hover {
   background: var(--superficie-suave);
 }
+
+/* Simulador de pesos */
+.faixa-simulacao {
+  margin: 0 0 1rem;
+  padding: 0.5rem 0.8rem;
+  border: 1px dashed var(--cor-pagina);
+  border-radius: var(--raio);
+  background: var(--superficie-suave);
+  font-weight: 600;
+}
+.comparacoes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.comparacao {
+  padding: 0.9rem 1rem;
+  background: var(--superficie);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio);
+}
+.comparacao-titulo {
+  font-size: 0.85rem;
+  color: var(--suave);
+}
+.comparacao-valores {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0.2rem 0;
+}
+.comparacao .indice-num {
+  font-size: 2rem;
+  font-weight: 760;
+  line-height: 1.1;
+}
+.comparacao .indice-num.mudou {
+  text-decoration: underline 3px;
+  text-underline-offset: 6px;
+}
+.comparacao-seta {
+  color: var(--suave);
+}
+.cor-verde {
+  color: var(--verde);
+}
+.cor-amarelo {
+  color: var(--amarelo-texto);
+}
+.cor-vermelho {
+  color: var(--vermelho);
+}
+.simulador-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 0 1rem;
+}
+.simulador-acoes .suave {
+  margin-right: auto;
+}
+.simulador .tabela {
+  margin-bottom: 1rem;
+}
+.peso-campo {
+  width: 4.5rem;
+  padding: 0.3rem 0.4rem;
+  border: 1px solid var(--linha-forte);
+  border-radius: var(--raio);
+  background: var(--superficie);
+  text-align: right;
+}
+.peso-campo.invalido {
+  border-color: var(--vermelho);
+  box-shadow: 0 0 0 1px var(--vermelho);
+}
+tr.linha-alterada td {
+  background: var(--selo-amarelo-fundo);
+}
+
