@@ -16,7 +16,9 @@ from sqlalchemy.orm import Session
 from app import repositorio
 from app.auth import hash_senha
 from app.calculos.checagens import rodar_checagens
-from app.config import settings
+from sqlalchemy.engine import make_url
+
+from app.config import Settings, settings
 from app.db import Base, SessionLocal, engine
 from app.models import Usuario, Versao
 from app.planilha.leitura import aplicar_tipos, ler_planilha
@@ -31,6 +33,20 @@ def _criar_usuario(s: Session, email: str | None, senha: str | None, nome: str, 
     s.add(Usuario(email=email, nome=nome, senha_hash=hash_senha(senha), perfil=perfil, ativo=True))
     s.commit()
     return 1
+
+
+SENHAS_DE_DEMONSTRACAO = {"Admin@2026", "Leitor@2026"}  # publicadas no README
+LOCAIS = {"localhost", "127.0.0.1", "::1"}
+
+
+def checar_destino(cfg: Settings) -> None:
+    """Fora do banco local, recusa criar usuários com as senhas de demonstração do README
+    (o .env completa variáveis esquecidas no terminal)."""
+    if make_url(cfg.DATABASE_URL).host in LOCAIS:
+        return
+    for nome in ("ADMIN_SENHA", "LEITOR_SENHA"):
+        if getattr(cfg, nome) in SENHAS_DE_DEMONSTRACAO:
+            raise SystemExit(f"{nome} é a senha de demonstração do README. Defina outra no terminal antes de carregar um banco na nuvem.")
 
 
 def inicializar(s: Session) -> dict[str, int]:
@@ -57,6 +73,9 @@ def main(argv: list[str]) -> int:
         print(__doc__)
         return 2
     import app.models  # noqa: F401
+
+    checar_destino(settings)
+    print(f"Banco de destino: {make_url(settings.DATABASE_URL).host}")
 
     Base.metadata.create_all(engine)
     with SessionLocal() as s:
