@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { rotulosColunas, marcasEixo, larguraRotuloBarras } from './graficoLayout'
+import { coresNeutras, rotulosColunas, marcasEixo, larguraRotuloBarras } from './graficoLayout'
 
 const SETORES = ['Energia Renovável', 'Hidrogênio Verde', 'Mineração', 'Sustentabilidade Ambiental']
 
@@ -37,5 +37,15 @@ describe('rotulosColunas com palavras longas', () => {
     const fontes = ['Solar', 'Eólica', 'Solar + Armazenamento', 'Biomassa', 'Biogás']
     const r = rotulosColunas(540, fontes)
     expect(r.rotacao > 0 || 'Armazenamento'.length * 7 <= r.largura).toBe(true)
+  })
+})
+
+describe('coresNeutras', () => {
+  it('mantém o claro de hoje e muda texto e linhas no escuro', () => {
+    expect(coresNeutras('claro')).toEqual({ texto: '#1F2933', suave: '#5F6B76', linha: '#E3E7EA', borda: '#fff' })
+    const e = coresNeutras('escuro')
+    expect(e.texto).not.toBe('#1F2933')
+    expect(e.linha).not.toBe('#E3E7EA')
+    expect(e.borda).not.toBe('#fff')
   })
 })

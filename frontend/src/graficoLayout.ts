@@ -32,3 +32,17 @@ export function marcasEixo(larguraEixo: number): number {
 export function larguraRotuloBarras(larguraGrafico: number): number {
   return Math.max(70, Math.min(180, Math.floor(larguraGrafico / 3)))
 }
+
+/** Cores neutras dos gráficos (texto, rótulos, grade, borda da rosca) para cada tema.
+ *  As cores das séries e dos pilares não mudam com o tema. */
+export interface CoresNeutras {
+  texto: string
+  suave: string
+  linha: string
+  borda: string
+}
+export function coresNeutras(tema: 'claro' | 'escuro'): CoresNeutras {
+  return tema === 'escuro'
+    ? { texto: '#E4E9ED', suave: '#9BA7B2', linha: '#2B343D', borda: '#1A2128' }
+    : { texto: '#1F2933', suave: '#5F6B76', linha: '#E3E7EA', borda: '#fff' }
+}

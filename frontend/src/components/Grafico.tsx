@@ -2,12 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import ReactECharts from 'echarts-for-react'
 import type { Grafico as TGrafico } from '../api'
 import { eixo, valor } from '../format'
-import { larguraRotuloBarras, marcasEixo, rotulosColunas, type Medidor } from '../graficoLayout'
+import { coresNeutras, larguraRotuloBarras, marcasEixo, rotulosColunas, type CoresNeutras, type Medidor } from '../graficoLayout'
+import { useTema } from '../tema'
 
 const PALETA = ['#0B3D91', '#1B8A4C', '#D9730D', '#5B2C83', '#00A19A', '#E0A100', '#4B5563', '#8E3B46']
-const TEXTO = '#1F2933'
-const SUAVE = '#5F6B76'
-const LINHA = '#E3E7EA'
 const FONTE = "'Public Sans Variable', system-ui, sans-serif"
 
 // Mede o texto com a fonte dos eixos (12 px), para saber se um nome cabe embaixo da coluna.
@@ -19,7 +17,8 @@ const medirTexto: Medidor = (texto) => {
   return contexto.measureText(texto).width
 }
 
-function opcoes(g: TGrafico, largura: number) {
+function opcoes(g: TGrafico, largura: number, cores: CoresNeutras) {
+  const { texto: TEXTO, suave: SUAVE, linha: LINHA } = cores
   const fmt = (v: unknown) => valor(typeof v === 'number' ? v : null, g.formato)
   const base = {
     color: PALETA,
@@ -28,7 +27,9 @@ function opcoes(g: TGrafico, largura: number) {
       trigger: g.tipo === 'rosca' ? 'item' : 'axis',
       axisPointer: { type: 'shadow' },
       valueFormatter: fmt,
-      textStyle: { fontFamily: FONTE },
+      backgroundColor: cores.borda,
+      borderColor: LINHA,
+      textStyle: { fontFamily: FONTE, color: TEXTO },
     },
     legend:
       g.series.length > 1 || g.tipo === 'rosca'
@@ -46,7 +47,7 @@ function opcoes(g: TGrafico, largura: number) {
           radius: ['32%', '50%'],
           center: ['50%', '42%'],
           avoidLabelOverlap: true,
-          itemStyle: { borderColor: '#fff', borderWidth: 2 },
+          itemStyle: { borderColor: cores.borda, borderWidth: 2 },
           labelLine: { length: 8, length2: 8 },
           label: {
             formatter: (p: { value: number; percent: number }) => `${fmt(p.value)} (${Math.round(p.percent)}%)`,
@@ -132,6 +133,7 @@ function useLargura<T extends HTMLElement>() {
 
 export function Grafico({ grafico }: { grafico: TGrafico }) {
   const [ref, largura] = useLargura<HTMLDivElement>()
+  const [tema] = useTema()
   const linhas = grafico.categorias.length
   const altura =
     grafico.tipo === 'barra_h' || grafico.tipo === 'barra_h_empilhada' ? Math.max(260, linhas * 30 + 80) : 320
@@ -143,7 +145,7 @@ export function Grafico({ grafico }: { grafico: TGrafico }) {
         {vazio ? (
           <p className="vazio">Nenhum dado para os filtros escolhidos.</p>
         ) : (
-          <ReactECharts option={opcoes(grafico, largura)} style={{ height: altura }} notMerge lazyUpdate />
+          <ReactECharts option={opcoes(grafico, largura, coresNeutras(tema))} style={{ height: altura }} notMerge lazyUpdate />
         )}
       </div>
     </figure>
