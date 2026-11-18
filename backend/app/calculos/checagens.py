@@ -105,6 +105,9 @@ def _repeticoes(p: pd.DataFrame) -> list[Ocorrencia]:
     saida = []
     for _, r in p.iterrows():
         cod = r["Código Projeto"]
+        if pd.isna(cod):  # como `nunique`, que ignora vazios: cada código vazio conta como repetição
+            saida.append(Ocorrencia("dProjeto", _linha(r), "", "Código Projeto vazio"))
+            continue
         if cod not in primeira:
             primeira[cod] = _linha(r)
             continue

@@ -120,6 +120,16 @@ def test_c02_lista_so_as_repeticoes():
     assert o.identificador == "PROJ001" and o.detalhe == "Código repetido; primeira ocorrência na linha 2"
 
 
+def test_c02_codigos_vazios_contam_como_repeticao():
+    b = base_modelo()
+    b["dProjeto"].loc[[0, 1], "Código Projeto"] = None
+    p = b["dProjeto"]
+    c02 = next(r for r in rodar_checagens(b) if r.id == "C02")
+    assert c02.problemas == len(c02.ocorrencias) == len(p) - p["Código Projeto"].nunique()
+    assert c02.problemas >= 2
+    assert {o.detalhe for o in c02.ocorrencias} >= {"Código Projeto vazio"}
+
+
 def test_c03_ocorrencia():
     b = base_modelo()
     b["fAmbiental"] = b["fAmbiental"].iloc[1:]
