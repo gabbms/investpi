@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import ReactECharts from 'echarts-for-react'
 import type { Grafico as TGrafico } from '../api'
 import { eixo, valor } from '../format'
-import { coresNeutras, larguraRotuloBarras, marcasEixo, rotulosColunas, type CoresNeutras, type Medidor } from '../graficoLayout'
+import { coresNeutras, tooltipDoTema, larguraRotuloBarras, marcasEixo, rotulosColunas, type CoresNeutras, type Medidor } from '../graficoLayout'
 import { useTema } from '../tema'
 
 const PALETA = ['#0B3D91', '#1B8A4C', '#D9730D', '#5B2C83', '#00A19A', '#E0A100', '#4B5563', '#8E3B46']
@@ -17,7 +17,7 @@ const medirTexto: Medidor = (texto) => {
   return contexto.measureText(texto).width
 }
 
-function opcoes(g: TGrafico, largura: number, cores: CoresNeutras) {
+function opcoes(g: TGrafico, largura: number, cores: CoresNeutras, tema: 'claro' | 'escuro') {
   const { texto: TEXTO, suave: SUAVE, linha: LINHA } = cores
   const fmt = (v: unknown) => valor(typeof v === 'number' ? v : null, g.formato)
   const base = {
@@ -27,9 +27,8 @@ function opcoes(g: TGrafico, largura: number, cores: CoresNeutras) {
       trigger: g.tipo === 'rosca' ? 'item' : 'axis',
       axisPointer: { type: 'shadow' },
       valueFormatter: fmt,
-      backgroundColor: cores.borda,
-      borderColor: LINHA,
-      textStyle: { fontFamily: FONTE, color: TEXTO },
+      ...tooltipDoTema(tema, cores),
+      textStyle: { fontFamily: FONTE, ...tooltipDoTema(tema, cores).textStyle },
     },
     legend:
       g.series.length > 1 || g.tipo === 'rosca'
@@ -145,7 +144,7 @@ export function Grafico({ grafico }: { grafico: TGrafico }) {
         {vazio ? (
           <p className="vazio">Nenhum dado para os filtros escolhidos.</p>
         ) : (
-          <ReactECharts option={opcoes(grafico, largura, coresNeutras(tema))} style={{ height: altura }} notMerge lazyUpdate />
+          <ReactECharts option={opcoes(grafico, largura, coresNeutras(tema), tema)} style={{ height: altura }} notMerge lazyUpdate />
         )}
       </div>
     </figure>

@@ -46,3 +46,12 @@ export function coresNeutras(tema: 'claro' | 'escuro'): CoresNeutras {
     ? { texto: '#E4E9ED', suave: '#9BA7B2', linha: '#2B343D', borda: '#1A2128' }
     : { texto: '#1F2933', suave: '#5F6B76', linha: '#E3E7EA', borda: '#fff' }
 }
+
+/** Balão dos gráficos: no claro fica o padrão do ECharts (como sempre foi); no escuro, fundo e texto
+ *  escuros. Sem borderColor, para a rosca manter a borda na cor da fatia. */
+export function tooltipDoTema(
+  tema: 'claro' | 'escuro',
+  cores: CoresNeutras,
+): { backgroundColor?: string; textStyle?: { color: string } } {
+  return tema === 'escuro' ? { backgroundColor: cores.borda, textStyle: { color: cores.texto } } : {}
+}

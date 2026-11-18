@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { coresNeutras, rotulosColunas, marcasEixo, larguraRotuloBarras } from './graficoLayout'
+import { coresNeutras, tooltipDoTema, rotulosColunas, marcasEixo, larguraRotuloBarras } from './graficoLayout'
 
 const SETORES = ['Energia Renovável', 'Hidrogênio Verde', 'Mineração', 'Sustentabilidade Ambiental']
 
@@ -47,5 +47,15 @@ describe('coresNeutras', () => {
     expect(e.texto).not.toBe('#1F2933')
     expect(e.linha).not.toBe('#E3E7EA')
     expect(e.borda).not.toBe('#fff')
+  })
+})
+
+describe('tooltipDoTema', () => {
+  it('no claro não mexe no balão (fica o padrão de sempre); no escuro, fundo e texto escuros', () => {
+    expect(tooltipDoTema('claro', coresNeutras('claro'))).toEqual({})
+    const e = tooltipDoTema('escuro', coresNeutras('escuro'))
+    expect(e.backgroundColor).toBe(coresNeutras('escuro').borda)
+    expect(e.textStyle?.color).toBe(coresNeutras('escuro').texto)
+    expect(e).not.toHaveProperty('borderColor') // borda da fatia da rosca continua com a cor da fatia
   })
 })
