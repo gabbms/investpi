@@ -2,7 +2,7 @@ import { Fragment, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api, ErroApi, type ErroEstrutura, type Previa, type Versao } from '../api'
 import { BotaoAbrir, ListaOcorrencias } from '../components/ListaOcorrencias'
-import { valor } from '../format'
+import { arquivoGrandeDemais, textoDoErro, valor } from '../format'
 
 type Etapa =
   | { tipo: 'inicio' }
@@ -26,6 +26,11 @@ export function Envio() {
     setArquivo(f)
     setErro(null)
     setAbertas(new Set())
+    if (arquivoGrandeDemais(f.size)) {
+      setErro(textoDoErro(413, undefined))
+      setEtapa({ tipo: 'inicio' })
+      return
+    }
     setEtapa({ tipo: 'validando' })
     try {
       setEtapa({ tipo: 'previa', previa: await api.upload<Previa>('/api/importacao/previa', f) })

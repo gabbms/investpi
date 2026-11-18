@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { corDoStatus, nomeExportacao, chaveDaLinha, normalizar, textoOcorrencia, textoSemLinhas, valor } from './format'
+import { arquivoGrandeDemais, textoDoErro, corDoStatus, nomeExportacao, chaveDaLinha, normalizar, textoOcorrencia, textoSemLinhas, valor } from './format'
 
 describe('valor', () => {
   it('formata reais em bilhões e milhões', () => {
@@ -75,5 +75,17 @@ describe('chaveDaLinha', () => {
     expect(chaveDaLinha(filtradas[0], 0 + linhas.indexOf(filtradas[0]))).toBe('C07')
     expect(chaveDaLinha(linhas[1], 1)).toBe('C07')
     expect(chaveDaLinha(linhas[2], 2)).toBe('2')
+  })
+})
+
+describe('envio grande demais', () => {
+  it('arquivo acima de 4 MB é barrado antes de enviar', () => {
+    expect(arquivoGrandeDemais(4 * 1024 * 1024)).toBe(false)
+    expect(arquivoGrandeDemais(4 * 1024 * 1024 + 1)).toBe(true)
+  })
+  it('o 413 sem detalhe (cortado pela Vercel) vira uma mensagem clara', () => {
+    expect(textoDoErro(413, undefined)).toContain('4 MB')
+    expect(textoDoErro(413, 'Arquivo maior que 4 MB.')).toBe('Arquivo maior que 4 MB.')
+    expect(textoDoErro(500, undefined)).toBe('Erro 500')
   })
 })

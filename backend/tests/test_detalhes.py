@@ -81,3 +81,31 @@ def test_catalogo_exporta_valor_como_numero(cliente, com_versao, h_leitor):
     assert por_id["IND01"].number_format == '"R$" #,##0.00'
     assert por_id["IND02"].value == 48
     assert isinstance(por_id["IND26"].value, float) and por_id["IND26"].number_format == "0.0%"
+
+
+# --- Publicação: limite de envio e publicações de teste da Vercel --------------------------------
+
+def test_limite_de_envio_cabe_na_vercel(cliente, com_versao, h_admin):
+    from app.api.importacao import TAMANHO_MAXIMO
+    assert TAMANHO_MAXIMO <= 4 * 1024 * 1024  # a Vercel corta pedidos acima de 4,5 MB
+    grande = b"0" * (TAMANHO_MAXIMO + 1)
+    r = cliente.post("/api/importacao/previa", headers=h_admin, files={"arquivo": ("g.xlsx", grande)})
+    assert r.status_code == 413 and "4 MB" in r.json()["detail"]
+
+
+def test_publicacao_de_teste_so_le(cliente, com_versao, h_admin, h_leitor, monkeypatch):
+    monkeypatch.setenv("VERCEL_ENV", "preview")
+    r = cliente.post("/api/importacao/previa", headers=h_admin, files={"arquivo": ("a.xlsx", b"x")})
+    assert r.status_code == 403 and "teste" in r.json()["detail"]
+    assert cliente.post("/api/versoes/pesos", json={"pesos": {"META24": 5}}, headers=h_admin).status_code == 403
+    assert cliente.patch("/api/usuarios/1", json={"ativo": True}, headers=h_admin).status_code == 403
+    # ler, entrar e simular continuam funcionando
+    assert cliente.get("/api/painel/visao-geral", headers=h_leitor).status_code == 200
+    assert cliente.post("/api/painel/simular-pesos", json={"pesos": {}}, headers=h_leitor).status_code == 200
+    login = cliente.post("/api/auth/login", json={"email": "leitor@teste.local", "senha": "Senha-Leitor-1"})
+    assert login.status_code == 200
+
+
+def test_producao_e_local_gravam(cliente, com_versao, h_admin, monkeypatch):
+    monkeypatch.setenv("VERCEL_ENV", "production")
+    assert cliente.post("/api/versoes/pesos", json={"pesos": {"META24": 5}}, headers=h_admin).status_code == 201

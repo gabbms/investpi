@@ -16,14 +16,14 @@ from app.planilha.validacao import validar_estrutura
 
 router = APIRouter(prefix="/api/importacao", tags=["importação"])
 
-TAMANHO_MAXIMO = 20 * 1024 * 1024
+TAMANHO_MAXIMO = 4 * 1024 * 1024  # a Vercel corta pedidos acima de 4,5 MB
 MSG_INVALIDA = "Arquivo não é uma planilha .xlsx válida"
 
 
 async def _ler(arquivo: UploadFile):
     conteudo = await arquivo.read(TAMANHO_MAXIMO + 1)
     if len(conteudo) > TAMANHO_MAXIMO:
-        raise HTTPException(status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, "Arquivo maior que 20 MB")
+        raise HTTPException(status.HTTP_413_CONTENT_TOO_LARGE, "Arquivo maior que 4 MB. A planilha modelo tem cerca de 0,2 MB.")
     try:
         base = ler_planilha(conteudo)
     except PlanilhaInvalida as exc:

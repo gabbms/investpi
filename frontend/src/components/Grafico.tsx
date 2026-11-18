@@ -130,9 +130,24 @@ function useLargura<T extends HTMLElement>() {
   return [ref, largura] as const
 }
 
+/** Muda uma vez quando as fontes do site terminam de carregar: os nomes são medidos de novo com a fonte certa. */
+function useFontesProntas() {
+  const [prontas, setProntas] = useState(() => typeof document === 'undefined' || document.fonts?.status === 'loaded')
+  useEffect(() => {
+    if (prontas || !document.fonts) return
+    let vivo = true
+    document.fonts.ready.then(() => vivo && setProntas(true))
+    return () => {
+      vivo = false
+    }
+  }, [prontas])
+  return prontas
+}
+
 export function Grafico({ grafico }: { grafico: TGrafico }) {
   const [ref, largura] = useLargura<HTMLDivElement>()
   const [tema] = useTema()
+  useFontesProntas() // re-render ao carregar a fonte: rotulosColunas mede o texto de novo
   const linhas = grafico.categorias.length
   const altura =
     grafico.tipo === 'barra_h' || grafico.tipo === 'barra_h_empilhada' ? Math.max(260, linhas * 30 + 80) : 320
