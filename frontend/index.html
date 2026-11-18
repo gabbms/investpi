@@ -5,6 +5,14 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Painel ASG · Investe Piauí</title>
+    <script>
+      // Mesma regra de src/tema.ts (temaInicial), aplicada antes de desenhar para não piscar.
+      try {
+        var s = localStorage.getItem('asg_tema')
+        var t = s === 'claro' || s === 'escuro' ? s : matchMedia('(prefers-color-scheme: dark)').matches ? 'escuro' : 'claro'
+        document.documentElement.dataset.tema = t
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>
