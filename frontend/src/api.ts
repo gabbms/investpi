@@ -39,7 +39,7 @@ export interface Grafico {
 export interface Coluna {
   chave: string
   rotulo: string
-  formato: 'texto' | 'brl' | 'num' | 'pct' | 'dec' | 'status' | 'simnao'
+  formato: 'texto' | 'brl' | 'num' | 'pct' | 'dec' | 'idx' | 'status' | 'simnao'
 }
 export interface Tabela {
   id: string

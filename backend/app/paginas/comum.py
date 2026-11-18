@@ -74,6 +74,11 @@ def _reais(v: float) -> str:
     return f"R$ {_casas(v, 0, fixo=False)}"
 
 
+def texto_reais_completo(v: float) -> str:
+    """Valor em reais por extenso, pt-BR, sempre com 2 casas: R$ 720.072.000,00."""
+    return f"R$ {_casas(v, 2, fixo=True)}"
+
+
 def texto_valor(v: float | None, formato: str) -> str:
     """Mesmo texto de `valor()` em frontend/src/format.ts: R$ 42,8 bi · 54,2% · 7.236 · 2,12."""
     if v is None or v != v:  # None ou NaN

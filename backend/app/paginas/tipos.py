@@ -38,7 +38,7 @@ class Grafico(BaseModel):
 class Coluna(BaseModel):
     chave: str
     rotulo: str
-    formato: Literal["texto", "brl", "num", "pct", "dec", "status", "simnao"]
+    formato: Literal["texto", "brl", "num", "pct", "dec", "idx", "status", "simnao"]
 
 
 class Tabela(BaseModel):

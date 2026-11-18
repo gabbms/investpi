@@ -10,7 +10,7 @@ from dataclasses import asdict, dataclass, field
 
 import pandas as pd
 
-from app.paginas.comum import texto_valor
+from app.paginas.comum import texto_reais_completo, texto_valor
 from app.planilha.leitura import COLUNA_LINHA, Base
 
 LIMITE_OCORRENCIAS = 50  # máximo de ocorrências mostradas por checagem na tela
@@ -93,10 +93,34 @@ def _data(v) -> str:
     return "—" if pd.isna(v) else pd.Timestamp(v).strftime("%d/%m/%Y")
 
 
+def _nome(v) -> str:
+    return "Projeto" if pd.isna(v) else str(v)
+
+
+def _textos_reais(pares: tuple[float, float], *valores: float) -> list[str]:
+    """Textos curtos; se o par comparado arredonda igual, valores completos."""
+    curtos = [texto_valor(v, "brl") for v in valores]
+    if texto_valor(pares[0], "brl") == texto_valor(pares[1], "brl"):
+        return [texto_reais_completo(v) for v in valores]
+    return curtos
+
+
+def _detalhe_c09(r: pd.Series) -> str:
+    emp, liq, pag = r["Valor Empenhado"], r["Valor Liquidado"], r["Valor Pago"]
+    pares = []
+    if pag > liq:
+        pares.append((pag, liq))
+    if liq > emp:
+        pares.append((liq, emp))
+    completo = any(texto_valor(a, "brl") == texto_valor(b, "brl") for a, b in pares)
+    t = texto_reais_completo if completo else (lambda v: texto_valor(v, "brl"))
+    return f"{_data(r['Data Referência'])}: Empenhado {t(emp)} · Liquidado {t(liq)} · Pago {t(pag)}"
+
+
 def _sem_linha_em(projetos: pd.DataFrame, fato: pd.DataFrame, tabela: str) -> list[Ocorrencia]:
     return _ocorrencias(
         "dProjeto", projetos, ~projetos["Código Projeto"].isin(set(fato["Código Projeto"])), "Código Projeto",
-        lambda r: f"{r['Nome Projeto']} sem linha em {tabela}",
+        lambda r: f"{_nome(r['Nome Projeto'])} sem linha em {tabela}",
     )
 
 
@@ -141,7 +165,10 @@ def rodar_checagens(base: Base) -> list[ResultadoChecagem]:
     listas = {
         "C01": _ocorrencias(
             "dProjeto", p, ~p["Código Empresa"].isin(set(base["dEmpresa"]["Código Empresa"])), "Código Projeto",
-            lambda r: f"Código Empresa {r['Código Empresa']} não existe em dEmpresa",
+            lambda r: (
+                "Código Empresa vazio" if pd.isna(r["Código Empresa"])
+                else f"Código Empresa {r['Código Empresa']} não existe em dEmpresa"
+            ),
         ),
         "C02": _repeticoes(p),
         "C03": _sem_linha_em(p, base["fAmbiental"], "fAmbiental"),
@@ -151,8 +178,9 @@ def rodar_checagens(base: Base) -> list[ResultadoChecagem]:
         "C07": _ocorrencias(
             "dProjeto", p, p["Investimento Realizado"] > p["Investimento Previsto"], "Código Projeto",
             lambda r: (
-                f"Investimento Realizado {texto_valor(r['Investimento Realizado'], 'brl')} > "
-                f"Investimento Previsto {texto_valor(r['Investimento Previsto'], 'brl')}"
+                "Investimento Realizado {} > Investimento Previsto {}".format(
+                    *_textos_reais((r["Investimento Realizado"], r["Investimento Previsto"]), r["Investimento Realizado"], r["Investimento Previsto"])
+                )
             ),
         ),
         "C08": _ocorrencias(
@@ -163,10 +191,7 @@ def rodar_checagens(base: Base) -> list[ResultadoChecagem]:
         "C09": _ocorrencias(
             "fFinanceiro", f,
             (f["Valor Pago"] > f["Valor Liquidado"]) | (f["Valor Liquidado"] > f["Valor Empenhado"]), "ID Execução",
-            lambda r: (
-                f"{_data(r['Data Referência'])}: Empenhado {texto_valor(r['Valor Empenhado'], 'brl')} · "
-                f"Liquidado {texto_valor(r['Valor Liquidado'], 'brl')} · Pago {texto_valor(r['Valor Pago'], 'brl')}"
-            ),
+            _detalhe_c09,
         ),
         "C10": _ocorrencias(
             "dProjeto", p, p[list(CAMPOS_OBRIGATORIOS)].isna().any(axis=1), "Código Projeto",

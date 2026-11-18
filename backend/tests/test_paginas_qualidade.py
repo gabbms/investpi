@@ -80,3 +80,14 @@ def test_qualidade_mostra_ocorrencias(cliente, sessao_teste, usuarios, h_leitor)
     wb = load_workbook(BytesIO(r.content))
     assert "Problemas" in wb.sheetnames and wb["Problemas"].max_row == 1 + 432
     repositorio.limpar_cache()
+
+
+def test_exportar_problemas_linha_sem_separador_de_milhar(cliente, sessao_teste, usuarios, h_leitor):
+    b = base_modelo()
+    b["fFinanceiro"]["Valor Pago"] = 2 * b["fFinanceiro"]["Valor Empenhado"]
+    repositorio.limpar_cache()
+    repositorio.salvar_versao(sessao_teste, b, usuarios["admin"].id, "x.xlsx", [])
+    r = cliente.get("/api/painel/exportar/qualidade", headers=h_leitor)
+    ws = load_workbook(BytesIO(r.content))["Problemas"]
+    assert ws.cell(row=2, column=[c.value for c in ws[1]].index("Linha") + 1).number_format == "0"
+    repositorio.limpar_cache()

@@ -209,3 +209,46 @@ def test_com_ocorrencias_corta_em_50():
     assert cortado["problemas"] == 432 and len(cortado["ocorrencias"]) == 50 and cortado["mais"] == 382
     assert len(c09.com_ocorrencias(None)["ocorrencias"]) == 432
     assert set(c09.dict()) == {"id", "checagem", "tabela", "regra", "problemas"}
+
+
+def test_c01_codigo_empresa_vazio_pelo_pipeline_real():
+    from app.planilha.leitura import aplicar_tipos, ler_planilha
+    from app.planilha.validacao import validar_estrutura
+    from tests.apoio import mutar
+
+    def alterar(wb):
+        ws = wb["dProjeto"]
+        col = [c.value for c in ws[1]].index("Código Empresa") + 1
+        ws.cell(row=2, column=col).value = None
+
+    b = ler_planilha(mutar(alterar))
+    assert validar_estrutura(b) == []
+    [o] = ocorrencias(aplicar_tipos(b), "C01")
+    assert (o.aba, o.linha, o.detalhe) == ("dProjeto", 2, "Código Empresa vazio")
+
+
+def test_c07_arredondamento_igual_mostra_valores_completos():
+    b = base_modelo()
+    b["dProjeto"].loc[0, "Investimento Previsto"] = 780_000_000
+    b["dProjeto"].loc[0, "Investimento Realizado"] = 780_000_001
+    [o] = ocorrencias(b, "C07")
+    assert o.detalhe == "Investimento Realizado R$ 780.000.001,00 > Investimento Previsto R$ 780.000.000,00"
+
+
+def test_c09_arredondamento_igual_mostra_valores_completos():
+    b = base_modelo()
+    b["fFinanceiro"].loc[0, "Valor Empenhado"] = 100_000_000
+    b["fFinanceiro"].loc[0, "Valor Liquidado"] = 100_000_000
+    b["fFinanceiro"].loc[0, "Valor Pago"] = 100_000_001
+    [o] = ocorrencias(b, "C09")
+    assert o.detalhe == (
+        "01/01/2026: Empenhado R$ 100.000.000,00 · Liquidado R$ 100.000.000,00 · Pago R$ 100.000.001,00"
+    )
+
+
+def test_c03_nome_projeto_vazio():
+    b = base_modelo()
+    b["dProjeto"].loc[0, "Nome Projeto"] = None
+    b["fAmbiental"] = b["fAmbiental"].iloc[1:]
+    [o] = ocorrencias(b, "C03")
+    assert o.detalhe == "Projeto sem linha em fAmbiental"

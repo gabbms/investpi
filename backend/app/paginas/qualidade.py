@@ -72,7 +72,7 @@ def montar(base: Base, versao: Versao, completo: bool = False) -> Pagina:
                 colunas=[
                     Coluna(chave="checagem", rotulo="Checagem", formato="texto"),
                     Coluna(chave="aba", rotulo="Aba", formato="texto"),
-                    Coluna(chave="linha", rotulo="Linha", formato="num"),
+                    Coluna(chave="linha", rotulo="Linha", formato="idx"),
                     Coluna(chave="identificador", rotulo="Identificador", formato="texto"),
                     Coluna(chave="detalhe", rotulo="Detalhe", formato="texto"),
                 ],
