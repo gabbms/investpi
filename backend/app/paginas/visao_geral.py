@@ -30,7 +30,8 @@ def _investimento_por_municipio(base: Base) -> Grafico:
             valores.append(calcular(restringir_projetos(base, sel), "Investimento Previsto") if len(sel) else None)
         series.append(Serie(nome=setor, valores=valores, cor=cor))
     return Grafico(id="investimento_municipio", titulo="Investimento previsto por município",
-                   tipo="barra_h_empilhada", categorias=municipios, series=series, formato="brl")
+                   tipo="barra_h_empilhada", categorias=municipios, series=series, formato="brl",
+                   largura="inteira")
 
 
 def montar(base: Base) -> Pagina:
@@ -58,11 +59,11 @@ def montar(base: Base) -> Pagina:
             Grafico(id="investimento_setor", titulo="Investimento previsto por setor", tipo="barra_h",
                     categorias=setores,
                     series=[Serie(nome="Investimento previsto", valores=valores["Investimento Previsto"])],
-                    formato="brl", cores_categorias=cores),
-            _investimento_por_municipio(base),
+                    formato="brl", cores_categorias=cores, largura="terco"),
             Grafico(id="indice_pilar_setor", titulo="Índice ASG por pilar e setor (0 a 100)", tipo="colunas",
-                    categorias=setores, series=indices, formato="idx"),
+                    categorias=setores, series=indices, formato="idx", largura="terco"),
             Grafico(id="projetos_status", titulo="Projetos por status", tipo="rosca",
-                    categorias=status, series=[Serie(nome="Projetos", valores=qtd)], formato="num"),
+                    categorias=status, series=[Serie(nome="Projetos", valores=qtd)], formato="num", largura="terco"),
+            _investimento_por_municipio(base),
         ],
     )

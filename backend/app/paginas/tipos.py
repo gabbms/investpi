@@ -31,6 +31,8 @@ class Grafico(BaseModel):
     formato: FormatoValor
     # cor de cada categoria (barras de uma série só, rosca); opcional
     cores_categorias: list[str | None] | None = None
+    # fração da largura da grade de gráficos que o gráfico ocupa
+    largura: Literal["terco", "metade", "inteira"] = "metade"
 
 
 class Coluna(BaseModel):
