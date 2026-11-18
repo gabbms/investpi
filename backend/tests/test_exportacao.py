@@ -38,6 +38,7 @@ def test_filtros_vao_para_o_contexto(cliente, com_versao, h_leitor):
     ctx = {r[0]: r[1] for r in wb["Contexto"].iter_rows(values_only=True)}
     assert ctx["Setor"] == "Mineração"
     assert ctx["Município"] == "Todos"
+    assert ctx["Empresa"] == "Todos"
     assert ctx["Versão dos dados"].startswith("nº 1")
     # o título "Conformidade ambiental dos projetos minerários" passa do limite de 31 caracteres do Excel
     assert "Conformidade ambiental dos proj" in wb.sheetnames

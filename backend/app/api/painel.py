@@ -43,8 +43,9 @@ def filtros(
     vp: list[str] = Query(default=[]),
     status_: list[str] = Query(default=[], alias="status"),
     municipio: list[str] = Query(default=[]),
+    empresa: list[str] = Query(default=[]),
 ) -> Filtros:
-    return Filtros(setores=setor, vps=vp, status=status_, municipios=municipio)
+    return Filtros(setores=setor, vps=vp, status=status_, municipios=municipio, empresas=empresa)
 
 
 def _unicos(valores) -> list[str]:
@@ -59,11 +60,14 @@ def _unicos(valores) -> list[str]:
 def opcoes(base: Base = Depends(base_ativa)):
     s = base["dSetor"].sort_values("Ordem")
     p = base["dProjeto"]
+    e = base["dEmpresa"]
+    com_projeto = e[e["Código Empresa"].isin(set(p["Código Empresa"]))]
     return {
         "setores": _unicos(s["Setor Investe"]),
         "vps": _unicos(s["Vice-Presidência"]),
         "status": sorted(_unicos(p["Status Projeto"])),
         "municipios": sorted(_unicos(p["Município"])),
+        "empresas": sorted(_unicos(com_projeto["Empresa"])),
     }
 
 

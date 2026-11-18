@@ -62,6 +62,7 @@ def _campos_filtro(filtros: Filtros) -> list[tuple[str, list[str]]]:
         ("Vice-Presidência", filtros.vps),
         ("Status do projeto", filtros.status),
         ("Município", filtros.municipios),
+        ("Empresa", filtros.empresas),
     ]
 
 

@@ -48,6 +48,7 @@ function BarraFiltros() {
       <MultiSelect rotulo="Vice-Presidência" opcoes={opcoes.vps} selecionados={filtros.vp} aoMudar={(v) => setFiltro('vp', v)} />
       <MultiSelect rotulo="Status do projeto" opcoes={opcoes.status} selecionados={filtros.status} aoMudar={(v) => setFiltro('status', v)} />
       <MultiSelect rotulo="Município" opcoes={opcoes.municipios} selecionados={filtros.municipio} aoMudar={(v) => setFiltro('municipio', v)} />
+      <MultiSelect rotulo="Empresa" opcoes={opcoes.empresas} selecionados={filtros.empresa} aoMudar={(v) => setFiltro('empresa', v)} />
       {ativos > 0 && (
         <button type="button" className="link-botao" onClick={limpar}>
           Limpar filtros ({ativos})
