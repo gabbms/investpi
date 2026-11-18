@@ -102,3 +102,43 @@ def test_exportar_gri_com_filtro_sem_projetos(cliente, com_versao, h_leitor):
     assert ws["A2"].value.endswith("filtros: Município: Inexistente")
     valores = {row[2]: row[3] for row in ws.iter_rows(min_row=5, values_only=True) if row[2]}
     assert valores["IND01 Investimento em energias renováveis"] == "R$ 0"
+
+
+def test_g4_com_espaco_tem_o_motivo_do_g4():
+    b = base_modelo()
+    b["dIndicador"].loc[2, "Referência GRI"] = "GRI G4 EU1"   # IND03
+    rev = {r.indicador.split()[0]: r.motivo for r in montar_indice_gri(b, HOJE).revisar}
+    assert rev["IND03"] == "Divulgação do modelo GRI-G4, anterior às Normas GRI"
+
+
+def test_indicador_sem_nome_nao_vira_none():
+    b = base_modelo()
+    b["dIndicador"].loc[53, "Indicador"] = None   # IND54
+    linhas = todas_linhas(montar_indice_gri(b, HOJE))
+    assert ("IND54", "23") in [(l[2], l[3]) for l in linhas]
+    assert not any("None" in l[2] for l in linhas)
+
+
+def test_titulos_longos_quebram_linha():
+    from app.calculos.filtros import Filtros
+    from app.exportacao import indice_gri_para_xlsx
+    from app.models import Versao
+
+    versao = Versao(numero=1, nome_arquivo="base.xlsx", criado_em=datetime(2026, 11, 18, 12, tzinfo=FUSO))
+    ws = load_workbook(BytesIO(indice_gri_para_xlsx(montar_indice_gri(base_modelo(), HOJE), Filtros(), versao)))["Índice GRI"]
+    celula = next(c for c in ws["B"] if c.value and str(c.value).startswith("404-2"))
+    assert celula.alignment.wrap_text and ws.cell(row=celula.row, column=3).alignment.wrap_text
+
+
+def test_sem_referencias_a_revisar():
+    from app.calculos.filtros import Filtros
+    from app.exportacao import indice_gri_para_xlsx
+    from app.models import Versao
+
+    b = base_modelo()
+    ref = b["dIndicador"]["Referência GRI"].astype(str).str.strip()
+    b["dIndicador"].loc[ref.str.startswith(("GRI-G4", "GRI 14", "GRI 304")), "Referência GRI"] = "-"
+    versao = Versao(numero=1, nome_arquivo="base.xlsx", criado_em=datetime(2026, 11, 18, 12, tzinfo=FUSO))
+    ws = load_workbook(BytesIO(indice_gri_para_xlsx(montar_indice_gri(b, HOJE), Filtros(), versao)))["Índice GRI"]
+    textos = [c.value for row in ws.iter_rows() for c in row if c.value]
+    assert "Nenhuma referência a revisar." in textos and "Referência" not in textos

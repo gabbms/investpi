@@ -86,6 +86,7 @@ MOTIVO_SETORIAL = "Norma setorial sem divulgação específica"
 MOTIVO_DESCONHECIDA = "Divulgação não reconhecida"
 
 _DIVULGACAO = re.compile(r"^GRI (\d+)-(\d+)$")
+_G4 = re.compile(r"^GRI[- ]G4\b", re.IGNORECASE)  # "GRI-G4 EU1" ou "GRI G4 EU1"
 _SETORIAL = re.compile(r"^GRI 1[1-9]\b(?!-)")  # GRI 11 a 19: normas setoriais, sem número de divulgação
 
 
@@ -129,7 +130,7 @@ def normalizar_referencia(texto: str) -> str:
 
 def _classificar(ref: str, hoje: date) -> tuple[str, str] | str:
     """(norma, divulgação) quando a referência entra no índice; senão, o motivo para revisar."""
-    if ref.upper().startswith("GRI-G4"):
+    if _G4.match(ref):
         return MOTIVO_G4
     if _SETORIAL.match(ref):
         return MOTIVO_SETORIAL
@@ -159,7 +160,8 @@ def montar_indice_gri(base: Base, hoje: date) -> IndiceGri:
             continue
         ref = normalizar_referencia(bruta)
         ident = str(r["ID Indicador"]).strip()
-        indicador = f"{ident} {str(r['Indicador']).strip()}"
+        nome = r["Indicador"]
+        indicador = ident if vazio(nome) else f"{ident} {str(nome).strip()}"
         valor = valores.get(ident, "—")
         destino = _classificar(ref, hoje)
         if isinstance(destino, str):

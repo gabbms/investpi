@@ -3,7 +3,7 @@ from datetime import datetime
 from io import BytesIO
 
 from openpyxl import Workbook
-from openpyxl.styles import Font
+from openpyxl.styles import Alignment, Font
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.worksheet import Worksheet
 
@@ -146,6 +146,8 @@ def pagina_para_xlsx(pagina: Pagina, filtros: Filtros, versao: Versao) -> bytes:
 TITULO_GRI = "Índice de conteúdo GRI — indicadores quantitativos"
 CABECALHO_GRI = ["Norma GRI", "Divulgação", "Indicador", "Valor", "Localização no relatório"]
 CABECALHO_REVISAR = ["Referência", "Motivo", "Indicador", "Valor"]
+# títulos de divulgação passam de 100 caracteres: quebrar a linha em vez de cortar na largura máxima
+QUEBRA = Alignment(wrap_text=True, vertical="top")
 
 
 def _resumo_filtros(filtros: Filtros) -> str:
@@ -167,18 +169,21 @@ def indice_gri_para_xlsx(indice: IndiceGri, filtros: Filtros, versao: Versao) ->
         primeira_da_norma = True
         for div in norma.divulgacoes:
             for k, item in enumerate(div.linhas):
-                ws.cell(row=linha, column=1, value=norma.titulo if primeira_da_norma else None)
-                ws.cell(row=linha, column=2, value=div.titulo if k == 0 else None)
-                ws.cell(row=linha, column=3, value=item.indicador)
-                ws.cell(row=linha, column=4, value=item.valor)
+                valores = [norma.titulo if primeira_da_norma else None, div.titulo if k == 0 else None,
+                           item.indicador, item.valor]
+                for col, valor in enumerate(valores, start=1):
+                    ws.cell(row=linha, column=col, value=valor).alignment = QUEBRA
                 primeira_da_norma = False
                 linha += 1
     linha += 1
     ws.cell(row=linha, column=1, value="Referências a revisar").font = NEGRITO
-    _cabecalho(ws, linha + 1, CABECALHO_REVISAR)
+    if not indice.revisar:
+        ws.cell(row=linha + 1, column=1, value="Nenhuma referência a revisar.")
+    else:
+        _cabecalho(ws, linha + 1, CABECALHO_REVISAR)
     for k, r in enumerate(indice.revisar, start=linha + 2):
         for col, valor in enumerate([r.referencia, r.motivo, r.indicador, r.valor], start=1):
-            ws.cell(row=k, column=col, value=valor)
+            ws.cell(row=k, column=col, value=valor).alignment = QUEBRA
     _ajustar(ws, congelar=False)
     ws.column_dimensions["A"].width = min(max(len(n.titulo) for n in indice.normas) + 2, LARGURA_MAX) if indice.normas else 20
     ws.freeze_panes = "A5"
