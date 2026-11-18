@@ -46,3 +46,14 @@ export function corDoIndice(v: number | null): 'verde' | 'amarelo' | 'vermelho' 
   if (v === null) return 'neutro'
   return v >= 75 ? 'verde' : v >= 50 ? 'amarelo' : 'vermelho'
 }
+
+/** Numera os pedidos ao servidor: só a resposta do mais recente é usada. */
+export function sequencia() {
+  let atual = 0
+  return { novo: () => ++atual, vigente: (n: number) => n === atual }
+}
+
+/** Com erro na tela, o simulado anterior não é mostrado (vira "—"). */
+export function simuladoVisivel(valor: number | null, erro: string | null): number | null {
+  return erro ? null : valor
+}

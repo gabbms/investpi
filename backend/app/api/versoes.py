@@ -1,16 +1,14 @@
 """Histórico de versões e reativação (spec §7)."""
 from datetime import datetime
-from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app import repositorio
 from app.auth import exigir_admin
 from app.calculos.checagens import rodar_checagens
-from app.pesos import base_com_pesos
+from app.pesos import PedidoPesos, base_com_pesos
 from app.db import get_session
 from app.models import Usuario, Versao
 
@@ -38,17 +36,13 @@ class VersaoOut(BaseModel):
         )
 
 
-class PedidoPesos(BaseModel):
-    pesos: dict[str, Any] = {}
-
-
 @router.post("/pesos", response_model=VersaoOut, status_code=status.HTTP_201_CREATED)
 def salvar_pesos(pedido: PedidoPesos, admin: Usuario = Depends(exigir_admin), s: Session = Depends(get_session)):
     """Cria uma versão igual à ativa, só com o Peso das metas trocado (simulador de pesos)."""
-    base = repositorio.carregar_base_ativa(s)
-    ativa = s.scalar(select(Versao).where(Versao.status == "ativa"))
-    if base is None or ativa is None:
+    ativa = repositorio.versao_ativa(s)  # uma consulta só: o nome e os dados copiados são da mesma versão
+    if ativa is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Ainda não há dados carregados.")
+    base = repositorio.carregar_base_da_versao(s, ativa.id, ativa.criado_em)
     try:
         nova = base_com_pesos(base, pedido.pesos)
     except ValueError as exc:

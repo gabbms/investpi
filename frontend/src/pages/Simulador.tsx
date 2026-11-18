@@ -9,6 +9,8 @@ import {
   corDoIndice,
   pesoValido,
   PESO_MAXIMO,
+  sequencia,
+  simuladoVisivel,
   temInvalido,
   type Indices,
   type MetaSimulada,
@@ -30,7 +32,7 @@ function inteiro(v: number | null) {
 function Comparacao({ chave, oficial, simulado }: { chave: keyof Indices; oficial: number | null; simulado: number | null }) {
   const mudou = oficial !== null && simulado !== null && Math.round(oficial) !== Math.round(simulado)
   return (
-    <section className="comparacao" aria-label={`${ROTULO[chave]}: oficial ${inteiro(oficial)}, simulado ${inteiro(simulado)}`}>
+    <div className="comparacao" role="group" aria-label={`${ROTULO[chave]}: oficial ${inteiro(oficial)}, simulado ${inteiro(simulado)}`}>
       <p className="comparacao-titulo">{ROTULO[chave]}</p>
       <p className="comparacao-valores">
         <span className={`indice-num cor-${corDoIndice(oficial)}`}>{inteiro(oficial)}</span>
@@ -38,7 +40,7 @@ function Comparacao({ chave, oficial, simulado }: { chave: keyof Indices; oficia
         <span className={`indice-num cor-${corDoIndice(simulado)} ${mudou ? 'mudou' : ''}`}>{inteiro(simulado)}</span>
       </p>
       <p className="pequeno suave">oficial → simulado</p>
-    </section>
+    </div>
   )
 }
 
@@ -52,7 +54,7 @@ export function Simulador() {
   const [erro, setErro] = useState<string | null>(null)
   const [aviso, setAviso] = useState<string | null>(null)
   const [salvando, setSalvando] = useState(false)
-  const pedido = useRef(0)
+  const seq = useRef(sequencia())
 
   const oficiais = useMemo(
     () => Object.fromEntries((dados?.metas ?? []).map((m) => [m.id_meta, m.peso_oficial])),
@@ -63,15 +65,15 @@ export function Simulador() {
 
   // recalcula ~300 ms depois da última edição; respostas antigas são ignoradas
   useEffect(() => {
-    const meu = ++pedido.current
+    const meu = seq.current.novo()
     const t = setTimeout(async () => {
       try {
         const r = await api.post<Simulacao>(`/api/painel/simular-pesos?${query.toString()}`, { pesos: JSON.parse(corpo) })
-        if (meu !== pedido.current) return
+        if (!seq.current.vigente(meu)) return
         setDados(r)
         setErro(null)
       } catch (e) {
-        if (meu !== pedido.current) return
+        if (!seq.current.vigente(meu)) return
         setErro(e instanceof ErroApi ? e.message : 'Não foi possível calcular a simulação.')
       }
     }, 300)
@@ -88,6 +90,7 @@ export function Simulador() {
     setPesos({})
     setTextos({})
     setAviso(null)
+    setErro(null)
   }
 
   async function salvar() {
@@ -98,8 +101,7 @@ export function Simulador() {
       setPesos({})
       setTextos({})
       setAviso(`Pesos salvos na versão nº ${v.numero}, que agora está em uso.`)
-      pedido.current++
-      setDados(await api.post<Simulacao>(`/api/painel/simular-pesos?${query.toString()}`, { pesos: {} }))
+      // limpar os pesos dispara o recálculo (agora contra a versão nova)
     } catch (e) {
       setErro(e instanceof ErroApi ? e.message : 'Não foi possível salvar os pesos.')
     } finally {
@@ -115,15 +117,16 @@ export function Simulador() {
         <div>
           <h1>Simulador de pesos</h1>
           <p>Mude o peso das metas e veja como os índices mudariam. Peso 0 tira a meta do cálculo.</p>
+          <p id="dica-peso" className="pequeno suave">Peso: número inteiro de 0 a {PESO_MAXIMO}.</p>
         </div>
       </header>
 
       <p className="faixa-simulacao" role="note">Simulação — não altera os números oficiais</p>
 
       {dados && (
-        <div className="comparacoes">
+        <div className="comparacoes" aria-live="polite">
           {(['geral', ...PILARES] as const).map((k) => (
-            <Comparacao key={k} chave={k} oficial={dados.oficial[k]} simulado={dados.simulado[k]} />
+            <Comparacao key={k} chave={k} oficial={dados.oficial[k]} simulado={simuladoVisivel(dados.simulado[k], erro)} />
           ))}
         </div>
       )}
@@ -143,7 +146,7 @@ export function Simulador() {
               ? 'Nenhum peso alterado.'
               : `${qtd} peso(s) alterado(s).`}
         </span>
-        <button type="button" className="botao secundario" onClick={restaurar} disabled={qtd === 0 && !Object.keys(textos).length}>
+        <button type="button" className="botao secundario" onClick={restaurar} disabled={salvando || (qtd === 0 && !Object.keys(textos).length && !erro)}>
           Restaurar pesos oficiais
         </button>
         {usuario?.perfil === 'admin' && (
@@ -191,6 +194,8 @@ export function Simulador() {
                               className={`peso-campo ${invalido ? 'invalido' : ''}`}
                               aria-label={`Peso simulado de ${m.indicador}`}
                               aria-invalid={invalido}
+                              aria-describedby="dica-peso"
+                              disabled={salvando}
                               value={texto}
                               onChange={(e) => mudar(m, e.target.value)}
                             />
