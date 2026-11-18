@@ -130,3 +130,7 @@ def test_indice_tema_ignora_espacos_no_codigo():
 
 def test_indice_geral_nao_muda():
     assert round(indice_geral(base_modelo())) == 68
+
+
+def test_pct_projetos_concluidos():
+    assert calcular(base_modelo(), "% Projetos Concluídos") == pytest.approx(5 / 48)

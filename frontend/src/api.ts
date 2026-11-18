@@ -46,6 +46,7 @@ export interface Tabela {
   titulo: string
   colunas: Coluna[]
   linhas: Record<string, unknown>[]
+  busca?: boolean
 }
 export interface Pagina {
   titulo: string

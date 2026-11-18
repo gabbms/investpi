@@ -12,7 +12,7 @@ from app.calculos.filtros import Filtros, aplicar_filtros
 from app.db import get_session
 from app.exportacao import pagina_para_xlsx
 from app.models import Usuario
-from app.paginas import pilares, setores, temas, visao_geral
+from app.paginas import indicadores, pilares, setores, temas, visao_geral
 from app.paginas.tipos import Pagina
 from app.planilha.leitura import Base, vazio
 
@@ -24,6 +24,7 @@ PAGINAS: dict[str, Callable[[Base], Pagina]] = {
     "social": pilares.social,
     "governanca": pilares.governanca,
     "metas": pilares.metas,
+    "indicadores": indicadores.montar,
 }
 
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { valor } from './format'
+import { normalizar, valor } from './format'
 
 describe('valor', () => {
   it('formata reais em bilhões e milhões', () => {
@@ -22,5 +22,12 @@ describe('valor', () => {
   it('mostra traço quando não há valor', () => {
     expect(valor(null, 'pct')).toBe('—')
     expect(valor(undefined, 'brl')).toBe('—')
+  })
+})
+
+describe('normalizar', () => {
+  it('ignora acentos e maiúsculas na busca', () => {
+    expect(normalizar('Água Reutilizada')).toContain(normalizar('agua'))
+    expect(normalizar('GOVERNANÇA')).toBe('governanca')
   })
 })

@@ -46,6 +46,8 @@ class Tabela(BaseModel):
     titulo: str
     colunas: list[Coluna]
     linhas: list[dict]
+    # caixa de busca acima da tabela (filtra no navegador)
+    busca: bool = False
 
 
 class Pagina(BaseModel):

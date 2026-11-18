@@ -46,6 +46,38 @@ def texto_meta(r: ResultadoMeta) -> str | None:
     return sinal + fmt_meta(r.meta, r.formato)
 
 
+
+def _casas(x: float, casas: int, fixo: bool) -> str:
+    """Número pt-BR com `casas` decimais (fixas, ou até `casas` sem zeros à direita)."""
+    t = f"{x:,.{casas}f}"
+    if not fixo and "." in t:
+        t = t.rstrip("0").rstrip(".")
+    return _milhar(t)
+
+
+def _reais(v: float) -> str:
+    for base, sufixo in ((1e9, "bi"), (1e6, "mi"), (1e3, "mil")):
+        if abs(v) >= base:
+            x = v / base
+            casas = 1 if sufixo != "mil" and abs(x) < 100 else 0
+            return f"R$ {_casas(x, casas, fixo=True)} {sufixo}"
+    return f"R$ {_casas(v, 0, fixo=False)}"
+
+
+def texto_valor(v: float | None, formato: str) -> str:
+    """Mesmo texto de `valor()` em frontend/src/format.ts: R$ 42,8 bi · 54,2% · 7.236 · 2,12."""
+    if v is None or v != v:  # None ou NaN
+        return "—"
+    if formato == "brl":
+        return _reais(v)
+    if formato == "pct":
+        return f"{_casas(v * 100, 1, fixo=True)}%"
+    if formato == "dec":
+        return _casas(v, 2, fixo=False)
+    if formato == "idx":
+        return _casas(round(v), 0, fixo=False)
+    return _casas(v, 0, fixo=False)
+
 @dataclass
 class Contexto:
     """Base filtrada de uma requisição + resultados das metas calculados uma vez."""

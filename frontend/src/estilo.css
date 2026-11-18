@@ -602,6 +602,17 @@ a.menu-item.ativo:hover {
   color: var(--suave);
   text-align: center;
 }
+.tabela-busca {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+}
+.tabela-busca input {
+  width: min(100%, 32rem);
+}
+.tabela-busca p {
+  font-size: 0.85rem;
+}
 .tabela-rolagem {
   overflow: auto;
   max-height: 520px;
@@ -752,6 +763,7 @@ tbody tr:hover td {
 input[type='email'],
 input[type='password'],
 input[type='text'],
+input[type='search'],
 select {
   padding: 0.5rem 0.65rem;
   border: 1px solid var(--linha-forte);

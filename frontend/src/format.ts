@@ -48,3 +48,8 @@ export function eixo(v: number, formato: Formato | string): string {
   if (Math.abs(v) >= 1e4) return `${nf(0).format(v / 1e3)} mil`
   return nf(1).format(v)
 }
+
+/** Texto sem acentos e em minúsculas, para a busca: "Água" e "agua" ficam iguais. */
+export function normalizar(texto: string): string {
+  return texto.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase()
+}

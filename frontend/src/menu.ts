@@ -22,6 +22,7 @@ export const PILARES: ItemMenu[] = [
   { rota: '/social', rotulo: 'Social', cor: COR.social, pronto: true, painel: true, endpoint: '/api/painel/social' },
   { rota: '/governanca', rotulo: 'Governança', cor: COR.governanca, pronto: true, painel: true, endpoint: '/api/painel/governanca' },
   { rota: '/metas', rotulo: 'Metas ASG', cor: COR.metas, pronto: true, painel: true, endpoint: '/api/painel/metas' },
+  { rota: '/indicadores', rotulo: 'Indicadores', cor: COR.geral, pronto: true, painel: true, endpoint: '/api/painel/indicadores' },
 ]
 
 // Temas materiais: como cada tema aparece nos quatro setores.
