@@ -4,6 +4,9 @@ export type Formato = 'brl' | 'num' | 'pct' | 'dec' | 'idx'
 const nf = (casas: number) =>
   new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: casas })
 
+const fixo = (casas: number) =>
+  new Intl.NumberFormat('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas })
+
 function reais(v: number): string {
   const abs = Math.abs(v)
   const escalas: [number, string][] = [
@@ -27,7 +30,7 @@ export function valor(v: number | null | undefined, formato: Formato | string): 
     case 'brl':
       return reais(v)
     case 'pct':
-      return `${nf(1).format(v * 100)}%`
+      return `${fixo(1).format(v * 100)}%`
     case 'dec':
       return nf(2).format(v)
     case 'idx':

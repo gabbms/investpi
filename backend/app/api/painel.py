@@ -9,7 +9,7 @@ from app.auth import usuario_atual
 from app.calculos.filtros import Filtros, aplicar_filtros
 from app.db import get_session
 from app.models import Usuario
-from app.paginas import visao_geral
+from app.paginas import pilares, visao_geral
 from app.paginas.tipos import Pagina
 from app.planilha.leitura import Base, vazio
 
@@ -17,6 +17,10 @@ router = APIRouter(prefix="/api/painel", tags=["painel"])
 
 PAGINAS: dict[str, Callable[[Base], Pagina]] = {
     "visao-geral": visao_geral.montar,
+    "ambiental": pilares.ambiental,
+    "social": pilares.social,
+    "governanca": pilares.governanca,
+    "metas": pilares.metas,
 }
 
 

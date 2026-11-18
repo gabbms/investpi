@@ -29,7 +29,7 @@ export function Tabela({ tabela }: { tabela: TTabela }) {
             <thead>
               <tr>
                 {tabela.colunas.map((c) => (
-                  <th key={c.chave} className={c.formato === 'texto' || c.formato === 'status' ? '' : 'num'}>
+                  <th key={c.chave} className={['texto', 'status', 'simnao'].includes(c.formato) ? '' : 'num'}>
                     {c.rotulo}
                   </th>
                 ))}
@@ -39,7 +39,7 @@ export function Tabela({ tabela }: { tabela: TTabela }) {
               {tabela.linhas.map((l, i) => (
                 <tr key={i}>
                   {tabela.colunas.map((c) => (
-                    <td key={c.chave} className={c.formato === 'texto' || c.formato === 'status' ? '' : 'num'}>
+                    <td key={c.chave} className={['texto', 'status', 'simnao'].includes(c.formato) ? '' : 'num'}>
                       <Celula coluna={c} v={l[c.chave]} />
                     </td>
                   ))}

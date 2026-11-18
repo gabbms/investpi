@@ -12,6 +12,7 @@ describe('valor', () => {
   })
   it('formata percentuais, números, decimais e índices', () => {
     expect(valor(0.5417, 'pct')).toBe('54,2%')
+    expect(valor(0.55, 'pct')).toBe('55,0%')
     expect(valor(7236, 'num')).toBe('7.236')
     expect(valor(3477889.4, 'num')).toBe('3.477.889')
     expect(valor(2.119, 'dec')).toBe('2,12')
