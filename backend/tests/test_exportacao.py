@@ -57,8 +57,28 @@ def test_nomes_de_aba_validos_e_unicos(cliente, com_versao, h_leitor):
 
 
 def test_filtro_sem_projetos_ainda_gera_arquivo(cliente, com_versao, h_leitor):
-    wb = baixar(cliente, h_leitor, "ambiental", "?municipio=Inexistente")
-    assert "Indicadores" in wb.sheetnames
+    tela = cliente.get("/api/painel/tema/licenca-social?municipio=Inexistente", headers=h_leitor).json()
+    wb = baixar(cliente, h_leitor, "tema/licenca-social", "?municipio=Inexistente")
+    assert wb.sheetnames[:3] == ["Contexto", "Indicadores", "Gráficos"]
+    ctx = {r[0]: r[1] for r in wb["Contexto"].iter_rows(values_only=True)}
+    assert ctx["Município"] == "Inexistente"
+    # cada tabela vira uma aba com as mesmas linhas da tela; a de projetos fica só com o cabeçalho
+    # (a de metas continua cheia: dMetas não é filtrada)
+    abas = wb.sheetnames[3:]
+    assert len(abas) == len(tela["tabelas"])
+    for aba, t in zip(abas, tela["tabelas"]):
+        assert wb[aba].max_row == 1 + len(t["linhas"]) and wb[aba]["A1"].value
+    assert any(len(t["linhas"]) == 0 for t in tela["tabelas"])
+
+
+def test_nome_do_arquivo_tem_a_data_do_piaui(cliente, com_versao, h_leitor):
+    from datetime import datetime
+
+    from app.paginas.comum import FUSO
+
+    r = cliente.get("/api/painel/exportar/setor/mineracao", headers=h_leitor)
+    hoje = datetime.now(FUSO).date().isoformat()
+    assert f'filename="ASG_setor_mineracao_{hoje}.xlsx"' in r.headers["content-disposition"]
 
 
 def test_exportar_pagina_inexistente(cliente, com_versao, h_leitor):

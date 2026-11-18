@@ -1,7 +1,7 @@
 """Dados das telas do painel, com os filtros da barra superior (spec §9 e §10)."""
 from collections.abc import Callable
 
-from datetime import date
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy.orm import Session
@@ -11,6 +11,7 @@ from app.auth import usuario_atual
 from app.calculos.filtros import Filtros, aplicar_filtros
 from app.db import get_session
 from app.exportacao import pagina_para_xlsx
+from app.paginas.comum import FUSO
 from app.models import Usuario
 from app.paginas import indicadores, pilares, qualidade, setores, temas, visao_geral
 from app.paginas.tipos import Pagina
@@ -102,7 +103,7 @@ def exportar(
     else:
         pagina = _tela(base, f, caminho, "Página não encontrada")
     conteudo = pagina_para_xlsx(pagina, f, versao)
-    nome = f"ASG_{caminho.replace('/', '_')}_{date.today().isoformat()}.xlsx"
+    nome = f"ASG_{caminho.replace('/', '_')}_{datetime.now(FUSO).date().isoformat()}.xlsx"
     return Response(conteudo, media_type=XLSX, headers={"Content-Disposition": f'attachment; filename="{nome}"'})
 
 

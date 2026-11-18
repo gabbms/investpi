@@ -53,3 +53,27 @@ export function eixo(v: number, formato: Formato | string): string {
 export function normalizar(texto: string): string {
   return texto.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase()
 }
+
+// Cor do selo de uma coluna `status`: metas (Atingida/Atenção/Abaixo) e checagens (OK/Verificar).
+const STATUS_COR: Record<string, string> = {
+  Atingida: 'verde',
+  'Atenção': 'amarelo',
+  Abaixo: 'vermelho',
+  OK: 'verde',
+  Verificar: 'amarelo',
+}
+export function corDoStatus(status: string): string {
+  return STATUS_COR[status] ?? 'neutro'
+}
+
+/** Mensagem da tabela vazia: com busca, a culpa é do termo; sem busca, dos filtros. */
+export function textoSemLinhas(termo: string): string {
+  return termo ? 'Nenhum resultado para a busca.' : 'Nenhuma linha para os filtros escolhidos.'
+}
+
+/** Nome do Excel exportado, igual ao do servidor: ASG_setor_mineracao_2026-11-18.xlsx (data local). */
+export function nomeExportacao(caminho: string, hoje: Date = new Date()): string {
+  const d = (n: number) => String(n).padStart(2, '0')
+  const data = `${hoje.getFullYear()}-${d(hoje.getMonth() + 1)}-${d(hoje.getDate())}`
+  return `ASG_${caminho.replace(/\//g, '_')}_${data}.xlsx`
+}

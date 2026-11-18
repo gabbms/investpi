@@ -122,7 +122,7 @@ def test_exportar_exige_login(cliente, com_versao):
 - [ ] **Step 4: Run** the Step 2 command, then the full suite. Expected: all PASS.
 - [ ] **Step 5: Frontend.**
   - In `api.ts`, change the signature to `baixar(caminho: string, nome: string, params?: URLSearchParams)`, appending `?<params>` when present. Envio's existing call keeps working.
-  - In `PaginaPainel.tsx`, add a "Exportar Excel" button on the right of `pagina-cabecalho`. It calls `api.baixar('/api/painel/exportar/' + endpoint.replace('/api/painel/', ''), nome, query)`, where `nome` is `ASG_<that path with / → _>.xlsx`.
+  - In `PaginaPainel.tsx`, add a "Exportar Excel" button on the right of `pagina-cabecalho`. It calls `api.baixar('/api/painel/exportar/' + endpoint.replace('/api/painel/', ''), nome, query)`, where `nome` is `nomeExportacao(caminho)` from `format.ts`: `ASG_<that path with / → _>_<AAAA-MM-DD>.xlsx`, the same name the server sends (the `download` attribute overrides Content-Disposition, so the date must be added on the client too). The server's date is taken in America/Fortaleza.
   - While the download runs, the button reads "Gerando…" and is disabled. A failed download shows the error message next to the button.
   - Run `npm run build` and `npx vitest run` in `frontend/`. Expected: no errors.
 - [ ] **Step 6: Check in the browser.**
@@ -175,7 +175,7 @@ def test_exportar_exige_login(cliente, com_versao):
 
 - **Page:**
   - title "Indicadores";
-  - subtitle "Catálogo dos 82 indicadores ASG com cálculo, origem, ODS e referência GRI. Os valores respeitam os filtros.";
+  - subtitle "Catálogo dos <N> indicadores ASG com cálculo, origem, ODS e referência GRI. Os valores respeitam os filtros.", where N is the number of dIndicador rows (82 today), so a new upload never contradicts the "Indicadores" card. When a search matches nothing, the table says "Nenhum resultado para a busca." instead of blaming the filters;
   - no `indice`, no charts.
   - Cards, each with formato `num` and an id equal to its title:
 
@@ -280,7 +280,7 @@ def test_medida_desconhecida_vira_traco(cliente, sessao_teste, usuarios, h_leito
   Set the card status to `verde` when "Problemas encontrados" is 0, else `amarelo`.
 - **Table 1**, id `checagens`, "Checagens de qualidade (C01–C12)":
   - columns ID · Checagem · Tabelas · Regra · Problemas (`num`) · Situação (`status`);
-  - Situação is "Atingida" when there are 0 problems, else "Atenção", so the existing green and yellow seals are reused.
+  - Situação is "OK" when there are 0 problems, else "Verificar". `corDoStatus` in `format.ts` maps OK → verde and Verificar → amarelo, next to the metas words (Atingida/Atenção/Abaixo), which stay as they are. The upload screen (Envio) shows "Verificar: N" in yellow too, since the checks are warnings that do not block saving.
 - **Table 2**, id `abas`, "Linhas por aba": columns Aba · Linhas (`num`), in the order of `ABAS` in `planilha/esquema.py` (dEmpresa, dSetor, dProjeto…), then any other key. `linhas_por_aba` is stored as JSONB, and Postgres does not keep key order, so its own order cannot be used.
 
 - [ ] **Step 1: Write the failing tests**
@@ -303,7 +303,7 @@ def test_qualidade_aponta_problema(cliente, sessao_teste, usuarios, h_leitor):
     repositorio.salvar_versao(sessao_teste, b, usuarios["admin"].id, "x.xlsx", [])
     p = cliente.get("/api/painel/qualidade", headers=h_leitor).json()
     c07 = next(l for l in p["tabelas"][0]["linhas"] if l["id"] == "C07")
-    assert c07["problemas"] == 1 and c07["situacao"] == "Atenção"
+    assert c07["problemas"] == 1 and c07["situacao"] == "Verificar"
     assert {x["id"]: x for x in p["cards"]}["Problemas encontrados"]["status"] == "amarelo"
     repositorio.limpar_cache()
 

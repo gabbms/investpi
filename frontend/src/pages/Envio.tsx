@@ -165,7 +165,7 @@ export function Envio() {
                           {c.problemas === 0 ? (
                             <span className="selo selo-verde">OK</span>
                           ) : (
-                            <span className="selo selo-vermelho">Verificar: {c.problemas}</span>
+                            <span className="selo selo-amarelo">Verificar: {c.problemas}</span>
                           )}
                         </td>
                       </tr>

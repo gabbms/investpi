@@ -53,7 +53,7 @@ def montar(base: Base, versao: Versao) -> Pagina:
                 ],
                 linhas=[
                     {"id": c.id, "checagem": c.checagem, "tabela": c.tabela, "regra": c.regra,
-                     "problemas": c.problemas, "situacao": "Atingida" if c.problemas == 0 else "Atenção"}
+                     "problemas": c.problemas, "situacao": "OK" if c.problemas == 0 else "Verificar"}
                     for c in checagens
                 ],
             ),

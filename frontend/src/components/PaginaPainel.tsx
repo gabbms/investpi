@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api, ErroApi, type Pagina } from '../api'
+import { nomeExportacao } from '../format'
 import { useAuth } from '../auth'
 import { useFiltros } from '../filtros'
 import { CardKpi } from './CardKpi'
@@ -31,7 +32,7 @@ export function PaginaPainel({ endpoint, cor }: Props) {
     setGerando(true)
     setErroExportar(null)
     try {
-      await api.baixar(`/api/painel/exportar/${caminho}`, `ASG_${caminho.replace(/\//g, '_')}.xlsx`, query)
+      await api.baixar(`/api/painel/exportar/${caminho}`, nomeExportacao(caminho), query)
     } catch (erro) {
       setErroExportar(erro instanceof Error ? erro.message : 'Não foi possível gerar o arquivo.')
     } finally {

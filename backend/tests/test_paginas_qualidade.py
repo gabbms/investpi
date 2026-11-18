@@ -26,6 +26,7 @@ def test_qualidade_base_limpa(cliente, com_versao, h_leitor):
     assert p["subtitulo"].startswith("Versão nº 1")
     assert [l["id"] for l in p["tabelas"][0]["linhas"]] == [f"C{i:02d}" for i in range(1, 13)]
     assert len(p["tabelas"][1]["linhas"]) >= 17   # ABAS tem 17 abas obrigatórias
+    assert {l["situacao"] for l in p["tabelas"][0]["linhas"]} == {"OK"}
 
 
 def test_qualidade_aponta_problema(cliente, sessao_teste, usuarios, h_leitor):
@@ -35,7 +36,7 @@ def test_qualidade_aponta_problema(cliente, sessao_teste, usuarios, h_leitor):
     repositorio.salvar_versao(sessao_teste, b, usuarios["admin"].id, "x.xlsx", [])
     p = cliente.get("/api/painel/qualidade", headers=h_leitor).json()
     c07 = next(l for l in p["tabelas"][0]["linhas"] if l["id"] == "C07")
-    assert c07["problemas"] == 1 and c07["situacao"] == "Atenção"
+    assert c07["problemas"] == 1 and c07["situacao"] == "Verificar"
     assert {x["id"]: x for x in p["cards"]}["Problemas encontrados"]["status"] == "amarelo"
     repositorio.limpar_cache()
 

@@ -1,14 +1,12 @@
 import { useMemo, useState } from 'react'
 import type { Coluna, Tabela as TTabela } from '../api'
-import { normalizar, valor } from '../format'
-
-const STATUS_COR: Record<string, string> = { Atingida: 'verde', 'Atenção': 'amarelo', Abaixo: 'vermelho' }
+import { corDoStatus, normalizar, textoSemLinhas, valor } from '../format'
 
 function Celula({ coluna, v }: { coluna: Coluna; v: unknown }) {
   if (v === null || v === undefined || v === '') return <span className="suave">—</span>
   switch (coluna.formato) {
     case 'status':
-      return <span className={`selo selo-${STATUS_COR[String(v)] ?? 'neutro'}`}>{String(v)}</span>
+      return <span className={`selo selo-${corDoStatus(String(v))}`}>{String(v)}</span>
     case 'simnao':
       return <span className={v === 'Sim' ? 'sim' : 'nao'}>{String(v)}</span>
     case 'texto':
@@ -45,7 +43,7 @@ export function Tabela({ tabela }: { tabela: TTabela }) {
         </div>
       )}
       {linhas.length === 0 ? (
-        <p className="vazio">Nenhuma linha para os filtros escolhidos.</p>
+        <p className="vazio">{textoSemLinhas(termo)}</p>
       ) : (
         <div className="tabela-rolagem">
           <table>

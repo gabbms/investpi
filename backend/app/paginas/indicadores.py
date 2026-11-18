@@ -5,10 +5,6 @@ from app.paginas.comum import Contexto, linha_valor, texto_valor
 from app.paginas.tipos import Card, Coluna, FormatoValor, Pagina, Tabela
 from app.planilha.leitura import Base, vazio
 
-SUBTITULO = (
-    "Catálogo dos 82 indicadores ASG com cálculo, origem, ODS e referência GRI. "
-    "Os valores respeitam os filtros."
-)
 # Formato de dMetas → formato de valor. "idx" (Índice Transparência Médio, de 0 a 1) usa
 # duas casas, como `fmt_meta`; o formato `idx` dos cards arredondaria 0,58 para 1.
 FORMATO_META: dict[str, FormatoValor] = {"%": "pct", "n": "num", "dec": "dec", "idx": "dec"}
@@ -87,7 +83,8 @@ def montar(base: Base) -> Pagina:
     ]
     return Pagina(
         titulo="Indicadores",
-        subtitulo=SUBTITULO,
+        subtitulo=(f"Catálogo dos {len(ind)} indicadores ASG com cálculo, origem, ODS e referência GRI. "
+                   "Os valores respeitam os filtros."),
         cards=[Card(id=t, titulo=t, valor=float(n), formato="num") for t, n in contagens],
         tabelas=[
             Tabela(

@@ -53,6 +53,16 @@ def test_medida_desconhecida_vira_traco(cliente, sessao_teste, usuarios, h_leito
     repositorio.limpar_cache()
 
 
+def test_subtitulo_conta_os_indicadores_da_versao(cliente, sessao_teste, usuarios, h_leitor):
+    b = base_modelo()
+    b["dIndicador"] = b["dIndicador"].iloc[:-1]
+    repositorio.limpar_cache()
+    repositorio.salvar_versao(sessao_teste, b, usuarios["admin"].id, "x.xlsx", [])
+    p = cliente.get("/api/painel/indicadores", headers=h_leitor).json()
+    assert p["subtitulo"].startswith("Catálogo dos 81 indicadores ASG")
+    repositorio.limpar_cache()
+
+
 def test_razao_por_milhao_tem_casas_decimais(cliente, com_versao, h_leitor):
     # "Empregos por R$ milhão" vale 0,43; como número inteiro apareceria "0"
     p = cliente.get("/api/painel/indicadores", headers=h_leitor).json()
