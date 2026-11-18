@@ -37,3 +37,35 @@ def cliente(sessao_teste):
         yield TestClient(app)
     finally:
         app.dependency_overrides.clear()
+
+
+ADMIN = ("admin@teste.local", "Senha-Admin-1")
+LEITOR = ("leitor@teste.local", "Senha-Leitor-1")
+
+
+@pytest.fixture
+def usuarios(sessao_teste):
+    from app.auth import hash_senha
+    from app.models import Usuario
+
+    admin = Usuario(email=ADMIN[0], nome="Admin Teste", senha_hash=hash_senha(ADMIN[1]), perfil="admin")
+    leitor = Usuario(email=LEITOR[0], nome="Leitor Teste", senha_hash=hash_senha(LEITOR[1]), perfil="leitor")
+    sessao_teste.add_all([admin, leitor])
+    sessao_teste.commit()
+    return {"admin": admin, "leitor": leitor}
+
+
+def _cabecalho(cliente, credenciais) -> dict:
+    r = cliente.post("/api/auth/login", json={"email": credenciais[0], "senha": credenciais[1]})
+    assert r.status_code == 200, r.text
+    return {"Authorization": f"Bearer {r.json()['token']}"}
+
+
+@pytest.fixture
+def h_admin(cliente, usuarios):
+    return _cabecalho(cliente, ADMIN)
+
+
+@pytest.fixture
+def h_leitor(cliente, usuarios):
+    return _cabecalho(cliente, LEITOR)

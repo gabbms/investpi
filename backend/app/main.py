@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api import auth
+
 app = FastAPI(title="Sistema ASG · Investe Piauí")
 
 app.add_middleware(
@@ -17,4 +19,4 @@ def saude() -> dict:
     return {"ok": True}
 
 
-# Roteadores das próximas tarefas são incluídos aqui.
+app.include_router(auth.router)
