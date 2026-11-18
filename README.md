@@ -14,7 +14,16 @@ O PostgreSQL roda num contêiner próprio do projeto, na porta **5433**. Ele nã
 
 ## Como rodar pela primeira vez
 
-Os comandos abaixo são para o PowerShell, a partir da pasta `SistemaWeb`. Com o Docker Desktop aberto:
+Para baixar o projeto do GitHub:
+
+```powershell
+git clone https://github.com/gabbms/investpi.git
+cd investpi
+```
+
+O `.env`, a `.venv` e o `node_modules` não ficam no GitHub; os passos abaixo criam os três.
+
+Os comandos são para o PowerShell, a partir da pasta do projeto (`investpi`, ou `SistemaWeb` no notebook do grupo). Com o Docker Desktop aberto:
 
 ```powershell
 # 1. Banco de dados
@@ -33,7 +42,7 @@ py -3.12 -m venv .venv
 
 O comando `inicializar` cria as tabelas, os dois usuários de demonstração e importa a planilha modelo como versão 1. Pode ser rodado de novo sem problema: só cria o que estiver faltando.
 
-Em **outro terminal**, também a partir de `SistemaWeb`:
+Em **outro terminal**, também a partir da pasta do projeto:
 
 ```powershell
 # 4. Site (React)
@@ -44,14 +53,48 @@ npm run dev
 
 Abra **http://localhost:5173** no navegador.
 
-### Nas próximas vezes
+## Rodar no dia a dia (3 terminais)
+
+Depois da primeira vez, basta abrir o **Docker Desktop**, esperar ele terminar de iniciar e usar três terminais do PowerShell, todos a partir da pasta do projeto.
+
+**Terminal 1: banco de dados**
 
 ```powershell
 docker compose up -d db
-cd backend; .venv\Scripts\python -m uvicorn app.main:app --port 8000
 ```
 
-e, em outro terminal, `cd frontend; npm run dev`.
+Esse terminal pode ser fechado depois; o banco continua rodando em segundo plano.
+
+**Terminal 2: API**
+
+```powershell
+cd backend
+.venv\Scripts\python -m uvicorn app.main:app --port 8000
+```
+
+Deixe aberto. Ele mostra `Uvicorn running on http://127.0.0.1:8000`.
+
+**Terminal 3: site**
+
+```powershell
+cd frontend
+npm run dev
+```
+
+Deixe aberto e acesse **http://localhost:5173**.
+
+Para parar: `Ctrl+C` nos terminais 2 e 3. Para desligar o banco: `docker compose stop`.
+
+## Problemas comuns
+
+| O que aparece | O que fazer |
+|---|---|
+| `failed to connect to the docker API` | O Docker Desktop ainda não terminou de abrir. Espere e rode de novo. |
+| "Erro 404" na tela de login | O site não está alcançando a API. Confira se o terminal 2 está aberto; depois pare o terminal 3 com `Ctrl+C` e rode `npm run dev` de novo. |
+| "E-mail ou senha incorretos" com os usuários de demonstração | Os usuários ainda não foram criados. Na pasta `backend`, rode `.venv\Scripts\python -m app.cli inicializar`. |
+| "Não foi possível carregar esta tela" ou "Ainda não há dados carregados" | Confira se o banco (terminal 1) e a API (terminal 2) estão rodando. Sem nenhuma versão, rode o `inicializar` ou envie a planilha como administrador. |
+| `Port 5173 is already in use` | Já existe um site rodando. Use a aba aberta ou feche o terminal antigo. |
+| `Address already in use` na porta 8000 | Já existe uma API rodando. Feche o terminal antigo antes de abrir outro. |
 
 ## Usuários de demonstração
 
