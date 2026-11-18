@@ -142,6 +142,13 @@ def _qtd_paises(b: Base) -> Valor:
 medida("% Investimento Realizado")(lambda b: dividir(m(b, "Investimento Realizado"), m(b, "Investimento Previsto")))
 
 
+@medida("% Projetos Concluídos")
+def _projetos_concluidos(b: Base) -> Valor:
+    """DIVIDE ( CALCULATE ( [Qtd Projetos], dProjeto[Status Projeto] = "Concluído" ), [Qtd Projetos] )"""
+    p = b["dProjeto"]
+    return dividir(contar(int((p["Status Projeto"] == "Concluído").sum())), m(b, "Qtd Projetos"))
+
+
 @medida("% Atingimento Médio da Meta")
 def _atingimento_medio(b: Base) -> Valor:
     p = b["dProjeto"]
