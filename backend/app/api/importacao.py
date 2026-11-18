@@ -36,7 +36,7 @@ async def _ler(arquivo: UploadFile):
 @router.post("/previa")
 async def previa(arquivo: UploadFile, _: Usuario = Depends(exigir_admin)):
     base, erros, linhas = await _ler(arquivo)
-    checagens = [] if erros else [c.dict() for c in rodar_checagens(aplicar_tipos(base))]
+    checagens = [] if erros else [c.com_ocorrencias() for c in rodar_checagens(aplicar_tipos(base))]
     return {
         "linhas_por_aba": linhas,
         "erros": [e.dict() for e in erros],
