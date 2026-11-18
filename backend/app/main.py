@@ -1,7 +1,12 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api import auth, importacao, painel, usuarios, versoes
+from app.config import settings, validar_producao
+
+validar_producao(settings, os.environ)
 
 app = FastAPI(title="Sistema ASG · Investe Piauí")
 

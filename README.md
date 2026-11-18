@@ -85,6 +85,20 @@ Deixe aberto e acesse **http://localhost:5173**.
 
 Para parar: `Ctrl+C` nos terminais 2 e 3. Para desligar o banco: `docker compose stop`.
 
+## Site publicado
+
+O painel também está no ar em **https://<nome>.vercel.app** (Vercel + banco PostgreSQL gratuito da Neon). Cada merge na `main` publica o site de novo, sozinho.
+
+- Os logins são os mesmos e-mails (`admin@asg.local` e `leitor@asg.local`), mas com **outras senhas**, que ficam só nas configurações da Vercel. Peça ao administrador.
+- O site publicado tem o próprio banco: o que se envia lá não aparece no computador local, e vice-versa.
+
+**Como publicar do zero**
+
+1. Em vercel.com, entre com o GitHub, clique em **Add New → Project** e importe este repositório (pasta raiz). As configurações de build vêm do `vercel.json`.
+2. No projeto, abra **Storage → Create Database → Neon** (plano gratuito) e conecte a todos os ambientes. Isso cria a variável `DATABASE_URL`.
+3. Em **Settings → Environment Variables**, adicione `JWT_SEGREDO` (texto longo e aleatório), `JWT_HORAS=8`, `ADMIN_EMAIL`, `ADMIN_SENHA`, `LEITOR_EMAIL` e `LEITOR_SENHA`, e publique de novo (**Redeploy**).
+4. Uma única vez, no computador, carregue o banco da Neon com as mesmas variáveis definidas no terminal (não no `.env`), na pasta `backend`: `.venv\Scripts\python -m app.cli inicializar`.
+
 ## Problemas comuns
 
 | O que aparece | O que fazer |
@@ -103,7 +117,7 @@ Para parar: `Ctrl+C` nos terminais 2 e 3. Para desligar o banco: `docker compose
 | Administrador | admin@asg.local | Admin@2026 |
 | Leitor | leitor@asg.local | Leitor@2026 |
 
-As credenciais vêm do arquivo `.env` (copiado de `.env.example`). Para trocar, edite o `.env` antes de rodar `inicializar`.
+Valem só no computador local (o site publicado usa outras senhas). As credenciais vêm do arquivo `.env` (copiado de `.env.example`). Para trocar, edite o `.env` antes de rodar `inicializar`.
 
 - **Leitor**: vê todas as telas do painel e usa os filtros.
 - **Administrador**: tudo do leitor, mais enviar planilha, ver o histórico de versões, voltar a uma versão anterior e cadastrar, desativar ou redefinir a senha de usuários.
