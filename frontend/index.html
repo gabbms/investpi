@@ -7,11 +7,14 @@
     <title>Painel ASG · Investe Piauí</title>
     <script>
       // Mesma regra de src/tema.ts (temaInicial), aplicada antes de desenhar para não piscar.
-      try {
-        var s = localStorage.getItem('asg_tema')
-        var t = s === 'claro' || s === 'escuro' ? s : matchMedia('(prefers-color-scheme: dark)').matches ? 'escuro' : 'claro'
-        document.documentElement.dataset.tema = t
-      } catch (e) {}
+      ;(function () {
+        var s = null
+        try {
+          s = localStorage.getItem('asg_tema')
+        } catch (e) {} // sem localStorage: segue o sistema
+        var escuro = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches
+        document.documentElement.dataset.tema = s === 'claro' || s === 'escuro' ? s : escuro ? 'escuro' : 'claro'
+      })()
     </script>
   </head>
   <body>

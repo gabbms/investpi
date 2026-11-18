@@ -147,7 +147,7 @@ function BotaoTema() {
       aria-label={escuro ? 'Usar tema claro' : 'Usar tema escuro'}
       title={escuro ? 'Usar tema claro' : 'Usar tema escuro'}
     >
-      <span aria-hidden="true">{escuro ? '☀' : '☾'}</span>
+      <span aria-hidden="true">{escuro ? '☀︎' : '☾︎'}</span>
     </button>
   )
 }

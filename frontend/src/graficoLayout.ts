@@ -41,10 +41,22 @@ export interface CoresNeutras {
   linha: string
   borda: string
 }
-export function coresNeutras(tema: 'claro' | 'escuro'): CoresNeutras {
-  return tema === 'escuro'
-    ? { texto: '#E4E9ED', suave: '#9BA7B2', linha: '#2B343D', borda: '#1A2128' }
-    : { texto: '#1F2933', suave: '#5F6B76', linha: '#E3E7EA', borda: '#fff' }
+const RESERVA: Record<'claro' | 'escuro', CoresNeutras> = {
+  // usados só sem CSS (testes); no navegador valem as variáveis de estilo.css
+  escuro: { texto: '#E4E9ED', suave: '#9BA7B2', linha: '#2B343D', borda: '#1A2128' },
+  claro: { texto: '#1F2933', suave: '#5F6B76', linha: '#E3E7EA', borda: '#fff' },
+}
+
+/** `ler` devolve o valor de uma variável CSS (ex.: getComputedStyle(html).getPropertyValue). */
+export function coresNeutras(tema: 'claro' | 'escuro', ler?: (nome: string) => string): CoresNeutras {
+  const r = RESERVA[tema]
+  const v = (nome: string, padrao: string) => (ler?.(nome) ?? '').trim() || padrao
+  return {
+    texto: v('--tinta', r.texto),
+    suave: v('--suave', r.suave),
+    linha: v('--linha', r.linha),
+    borda: v('--superficie', r.borda),
+  }
 }
 
 /** Balão dos gráficos: no claro fica o padrão do ECharts (como sempre foi); no escuro, fundo e texto

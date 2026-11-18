@@ -936,7 +936,7 @@ td.ocorrencias-celula {
 
 /* Tema escuro: mesmas variáveis, tons para fundo escuro. Cores dos pilares e setores não mudam;
    o semáforo só clareia o suficiente para o texto ser legível. */
-[data-tema='escuro'] {
+:root[data-tema='escuro'] {
   --fundo: #12171c;
   --superficie: #1a2128;
   --tinta: #e4e9ed;
@@ -966,12 +966,13 @@ td.ocorrencias-celula {
   --selo-amarelo-fundo: #463a10;
   --selo-vermelho-fundo: #4a2020;
   --selo-vermelho-texto: #ff9e9b;
-  --login-fundo: #0c1014;
+  --login-fundo: #1d2833; /* mais claro que o fundo do formulário, para as duas metades se separarem */
   color-scheme: dark;
 }
 
 /* Botão de tema no topo */
 .tema-alternar {
+  align-self: center;
   display: inline-grid;
   place-items: center;
   width: 2rem;

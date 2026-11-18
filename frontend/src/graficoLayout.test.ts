@@ -59,3 +59,13 @@ describe('tooltipDoTema', () => {
     expect(e).not.toHaveProperty('borderColor') // borda da fatia da rosca continua com a cor da fatia
   })
 })
+
+describe('coresNeutras lidas do CSS', () => {
+  it('usa as variáveis do tema (--tinta, --suave, --linha, --superficie) quando o navegador as fornece', () => {
+    const css: Record<string, string> = { '--tinta': '#111111', '--suave': '#222222', '--linha': '#333333', '--superficie': '#444444' }
+    expect(coresNeutras('escuro', (n) => css[n])).toEqual({ texto: '#111111', suave: '#222222', linha: '#333333', borda: '#444444' })
+  })
+  it('sem CSS (testes, servidor), cai nos valores de reserva', () => {
+    expect(coresNeutras('claro', () => '')).toEqual(coresNeutras('claro'))
+  })
+})

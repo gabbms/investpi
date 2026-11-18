@@ -130,6 +130,9 @@ function useLargura<T extends HTMLElement>() {
   return [ref, largura] as const
 }
 
+// Cores neutras vêm das variáveis de estilo.css (uma fonte só para tela e gráficos).
+const lerVariavelCss = (nome: string) => getComputedStyle(document.documentElement).getPropertyValue(nome)
+
 /** Muda uma vez quando as fontes do site terminam de carregar: os nomes são medidos de novo com a fonte certa. */
 function useFontesProntas() {
   const [prontas, setProntas] = useState(() => typeof document === 'undefined' || document.fonts?.status === 'loaded')
@@ -159,7 +162,7 @@ export function Grafico({ grafico }: { grafico: TGrafico }) {
         {vazio ? (
           <p className="vazio">Nenhum dado para os filtros escolhidos.</p>
         ) : (
-          <ReactECharts option={opcoes(grafico, largura, coresNeutras(tema), tema)} style={{ height: altura }} notMerge lazyUpdate />
+          <ReactECharts option={opcoes(grafico, largura, coresNeutras(tema, lerVariavelCss), tema)} style={{ height: altura }} notMerge lazyUpdate />
         )}
       </div>
     </figure>
