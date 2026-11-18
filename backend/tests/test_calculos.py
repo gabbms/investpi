@@ -94,6 +94,13 @@ def test_filtro_por_vice_presidencia(base):
     assert set(b["dProjeto"]["Setor Investe"]) == {"Energia Renovável", "Hidrogênio Verde"}
 
 
+def test_filtro_por_empresa(base):
+    b = aplicar_filtros(base, Filtros(empresas=["Lusitana EcoEnergias S.A."]))
+    assert set(b["dProjeto"]["Código Empresa"]) == {"EMP002"}
+    assert calcular(b, "Qtd Projetos") == 2
+    assert set(b["dEmpresa"]["Código Empresa"]) == {"EMP002"}
+
+
 def test_filtro_vazio(base):
     b = aplicar_filtros(base, Filtros(municipios=["Inexistente"]))
     assert calcular(b, "Qtd Projetos") == 0

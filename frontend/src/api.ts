@@ -62,6 +62,7 @@ export interface Opcoes {
   vps: string[]
   status: string[]
   municipios: string[]
+  empresas: string[]
 }
 export interface ErroEstrutura {
   aba: string | null

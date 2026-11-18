@@ -1,8 +1,8 @@
-"""Filtros do painel (Setor, Vice-Presidência, Status, Município) — spec §9.
+"""Filtros do painel (Setor, Vice-Presidência, Status, Município, Empresa) — spec §9.
 
-Os filtros valem em dProjeto (e em dSetor para a Vice-Presidência); as tabelas
-f* ficam só com os projetos que restaram e dEmpresa só com as empresas desses
-projetos. dSetor, dMetas, dPremissas e dIndicador passam sem filtro.
+Os filtros valem em dProjeto (e em dSetor para a Vice-Presidência, em dEmpresa
+para a Empresa); as tabelas f* ficam só com os projetos que restaram e dEmpresa
+só com as empresas desses projetos. dSetor, dMetas, dPremissas e dIndicador passam sem filtro.
 """
 from __future__ import annotations
 
@@ -20,6 +20,7 @@ class Filtros:
     vps: list[str] = field(default_factory=list)
     status: list[str] = field(default_factory=list)
     municipios: list[str] = field(default_factory=list)
+    empresas: list[str] = field(default_factory=list)
 
 
 def restringir_projetos(base: Base, codigos: Iterable[str]) -> Base:
@@ -53,4 +54,8 @@ def aplicar_filtros(base: Base, f: Filtros) -> Base:
         s = base["dSetor"]
         setores_vp = set(s.loc[s["Vice-Presidência"].isin(f.vps), "Setor Investe"])
         mascara &= p["Setor Investe"].isin(setores_vp)
+    if f.empresas:
+        e = base["dEmpresa"]
+        codigos_emp = set(e.loc[e["Empresa"].isin(f.empresas), "Código Empresa"])
+        mascara &= p["Código Empresa"].isin(codigos_emp)
     return restringir_projetos(base, p.loc[mascara, "Código Projeto"])

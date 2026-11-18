@@ -1,6 +1,6 @@
 # Sistema ASG Web · Investe Piauí (Grupo 3)
 
-Versão web do painel ASG do grupo. Um administrador envia a planilha da base pelo navegador; o sistema confere a estrutura, roda as 12 checagens de qualidade e grava os dados como uma nova versão. Quem tem login vê o painel com os mesmos números do Power BI v3: Visão Geral, Ambiental, Social, Governança, Metas ASG e uma tela para cada setor, com filtros por setor, vice-presidência, status do projeto e município.
+Versão web do painel ASG do grupo. Um administrador envia a planilha da base pelo navegador; o sistema confere a estrutura, roda as 12 checagens de qualidade e grava os dados como uma nova versão. Quem tem login vê o painel com os mesmos números do Power BI v3: Visão Geral, Ambiental, Social, Governança, Metas ASG e uma tela para cada setor, com filtros por setor, vice-presidência, status do projeto, município e empresa.
 
 É a peça "Sistema" do fluxo *Sistema → Base de dados → Painel BI* do desafio, entregue como MVP. A especificação está em [docs/superpowers/specs/2026-11-17-sistema-asg-web-design.md](docs/superpowers/specs/2026-11-17-sistema-asg-web-design.md).
 

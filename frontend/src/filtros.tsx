@@ -2,10 +2,10 @@
 import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-export type ChaveFiltro = 'setor' | 'vp' | 'status' | 'municipio'
+export type ChaveFiltro = 'setor' | 'vp' | 'status' | 'municipio' | 'empresa'
 export type Filtros = Record<ChaveFiltro, string[]>
 
-export const CHAVES: ChaveFiltro[] = ['setor', 'vp', 'status', 'municipio']
+export const CHAVES: ChaveFiltro[] = ['setor', 'vp', 'status', 'municipio', 'empresa']
 
 export function useFiltros() {
   const [params, setParams] = useSearchParams()

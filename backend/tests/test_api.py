@@ -129,6 +129,8 @@ def test_opcoes(cliente, com_versao, h_leitor):
     assert len(corpo["vps"]) == 3
     assert "Concluído" in corpo["status"]
     assert "Luís Correia" in corpo["municipios"]
+    assert "Nordvind Energi A/S" in corpo["empresas"]
+    assert corpo["empresas"] == sorted(corpo["empresas"])
 
 
 def test_painel_sem_versao(cliente, usuarios, h_leitor):
