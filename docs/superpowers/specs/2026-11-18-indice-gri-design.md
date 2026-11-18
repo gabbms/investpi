@@ -21,6 +21,7 @@ Relatórios de sustentabilidade que seguem as Normas GRI trazem um anexo, o **í
 - **Referências fora das Normas GRI atuais vão para o bloco "Referências a revisar"**, no fim da aba, com o motivo, em vez de serem encaixadas por suposição:
   - `GRI-G4 EU1` e `GRI-G4 EU2`: "Divulgação do modelo GRI-G4, anterior às Normas GRI";
   - `GRI 14 (Mineração)`: "Norma setorial sem divulgação específica";
+  - divulgação de uma norma **já substituída** na data da exportação: "Norma substituída por <nova norma> em dd/mm/aaaa". Hoje isso vale para a `GRI 304-3` (a GRI 304: Biodiversidade 2016 foi substituída pela GRI 101: Biodiversity 2024 em 01/01/2026); a partir de 01/01/2027, também para a `GRI 302-1` e a `GRI 302-3` (GRI 302: Energia 2016 → GRI 103: Energy 2025). A tabela de normas guarda a data de substituição de cada norma quando a GRI a publica, e a exportação compara com a data do dia (horário do Piauí);
   - qualquer referência que não esteja na tabela de nomes (por exemplo, numa planilha nova): "Divulgação não reconhecida".
 - Acesso: qualquer usuário logado, como as outras exportações.
 
@@ -60,12 +61,14 @@ GRI-G4 EU1           Divulgação do modelo GRI-G4, anterior às Normas GRI  IND
 ## O que não pode acontecer
 
 - **O arquivo afirmar conformidade com as Normas GRI.** O título diz "indicadores quantitativos", e nada no arquivo diz que o relatório está "de acordo com" as normas.
-- **Um nome de norma ou divulgação inventado ou desatualizado.** Os nomes vêm da tradução oficial das Normas GRI para o português, publicada pela GRI; a tabela no código registra a fonte e a versão de cada norma, e o plano confere cada um dos 31 nomes.
+- **Um nome de norma ou divulgação inventado ou desatualizado.** Os nomes vêm da tradução oficial das Normas GRI para o português, publicada pela GRI (lista em globalreporting.org, "GRI Standards Portuguese Translations"); a tabela no código registra a fonte de cada nome, e o plano traz os 31 títulos conferidos nos PDFs oficiais.
+- **Uma divulgação de norma já substituída entrar no índice como se valesse.**
 - **Uma referência fora do padrão ser encaixada numa norma por suposição.** Ela vai para "Referências a revisar".
 
 ## Restrições
 
-- As 31 referências atuais nas Normas GRI: GRI 2-5, 2-6, 2-12, 2-25, 2-26, 2-27, 2-29 · 201-1 · 203-1, 203-2 · 204-1 · 205-2, 205-3 · 302-1, 302-3 · 303-3, 303-5 · 304-3 · 305-1, 305-4, 305-5 · 306-2, 306-3, 306-4, 306-5 · 403-5, 403-9 · 404-1, 404-2 · 405-1 · 413-1.
+- As 31 referências da planilha nas Normas GRI: GRI 2-5, 2-6, 2-12, 2-25, 2-26, 2-27, 2-29 · 201-1 · 203-1, 203-2 · 204-1 · 205-2, 205-3 · 302-1, 302-3 · 303-3, 303-5 · 304-3 · 305-1, 305-4, 305-5 · 306-2, 306-3, 306-4, 306-5 · 403-5, 403-9 · 404-1, 404-2 · 405-1 · 413-1. Na base atual, em novembro de 2026: 30 delas entram no índice (65 indicadores) e a 304-3 vai para "Referências a revisar", junto com G4 EU1, EU2 e GRI 14 (8 indicadores no bloco).
+- A GRI 306 usada é a **GRI 306: Resíduos 2020**, a versão em vigor (306-2 a 306-5 mudaram de sentido em relação à de 2016).
 - Sem dependência nova. Sem mudança no Índice ASG, nas metas ou nos pesos: o Índice ASG Geral continua 68.
 - Reaproveitar o que existe: o cálculo do valor atual do catálogo (`paginas/indicadores.py`), `texto_valor`, `data_local` e o Contexto de `exportacao.py`.
 
