@@ -1,0 +1,1 @@
+CREATE DATABASE asg_test OWNER asg;
