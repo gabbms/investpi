@@ -1,7 +1,7 @@
 import { Fragment, useMemo, useState } from 'react'
 import type { Coluna, Ocorrencia, Tabela as TTabela } from '../api'
 import { BotaoAbrir, ListaOcorrencias } from './ListaOcorrencias'
-import { corDoStatus, normalizar, textoSemLinhas, valor } from '../format'
+import { chaveDaLinha, corDoStatus, normalizar, textoSemLinhas, valor } from '../format'
 
 function Celula({ coluna, v }: { coluna: Coluna; v: unknown }) {
   if (v === null || v === undefined || v === '') return <span className="suave">—</span>
@@ -19,11 +19,11 @@ function Celula({ coluna, v }: { coluna: Coluna; v: unknown }) {
 
 export function Tabela({ tabela }: { tabela: TTabela }) {
   const [busca, setBusca] = useState('')
-  const [abertas, setAbertas] = useState<Set<number>>(new Set())
-  const alternar = (i: number) =>
+  const [abertas, setAbertas] = useState<Set<string>>(new Set())
+  const alternar = (chave: string) =>
     setAbertas((a) => {
       const n = new Set(a)
-      if (!n.delete(i)) n.add(i)
+      if (!n.delete(chave)) n.add(chave)
       return n
     })
   const textos = useMemo(
@@ -31,7 +31,9 @@ export function Tabela({ tabela }: { tabela: TTabela }) {
     [tabela],
   )
   const termo = normalizar(busca.trim())
-  const linhas = termo ? tabela.linhas.filter((_, i) => textos[i].includes(termo)) : tabela.linhas
+  const linhas = tabela.linhas
+    .map((l, original) => ({ l, original }))
+    .filter(({ original }) => !termo || textos[original].includes(termo))
 
   return (
     <section className="tabela">
@@ -66,16 +68,17 @@ export function Tabela({ tabela }: { tabela: TTabela }) {
               </tr>
             </thead>
             <tbody>
-              {linhas.map((l, i) => {
+              {linhas.map(({ l, original }) => {
+                const chave = chaveDaLinha(l, original)
                 const ocorrencias = (l.ocorrencias as Ocorrencia[] | undefined) ?? []
-                const aberta = abertas.has(i)
+                const aberta = abertas.has(chave)
                 return (
-                  <Fragment key={i}>
+                  <Fragment key={chave}>
                     <tr>
                       {tabela.expansivel && (
                         <td>
                           {ocorrencias.length > 0 && (
-                            <BotaoAbrir aberto={aberta} aoAlternar={() => alternar(i)} rotulo={String(l.id ?? i + 1)} />
+                            <BotaoAbrir aberto={aberta} aoAlternar={() => alternar(chave)} rotulo={String(l.id ?? original + 1)} />
                           )}
                         </td>
                       )}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { corDoStatus, nomeExportacao, normalizar, textoOcorrencia, textoSemLinhas, valor } from './format'
+import { corDoStatus, nomeExportacao, chaveDaLinha, normalizar, textoOcorrencia, textoSemLinhas, valor } from './format'
 
 describe('valor', () => {
   it('formata reais em bilhões e milhões', () => {
@@ -65,5 +65,15 @@ describe('textoOcorrencia', () => {
   })
   it('omite o identificador vazio', () => {
     expect(textoOcorrencia({ aba: 'dProjeto', linha: 2, identificador: '', detalhe: '' })).toBe('dProjeto · linha 2')
+  })
+})
+
+describe('chaveDaLinha', () => {
+  it('não muda com o filtro: usa o id, ou o índice original sem id', () => {
+    const linhas: Record<string, unknown>[] = [{ id: 'C01' }, { id: 'C07' }, { nome: 'x' }]
+    const filtradas = linhas.filter((l) => l.id === 'C07')
+    expect(chaveDaLinha(filtradas[0], 0 + linhas.indexOf(filtradas[0]))).toBe('C07')
+    expect(chaveDaLinha(linhas[1], 1)).toBe('C07')
+    expect(chaveDaLinha(linhas[2], 2)).toBe('2')
   })
 })

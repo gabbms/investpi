@@ -84,3 +84,8 @@ export function nomeExportacao(caminho: string, hoje: Date = new Date()): string
 export function textoOcorrencia(o: Ocorrencia): string {
   return [o.aba, o.linha != null ? `linha ${o.linha}` : null, o.identificador || null].filter(Boolean).join(' · ')
 }
+
+/** Identidade estável de uma linha (para guardar "aberta"): o `id`, ou o índice na lista sem filtro. */
+export function chaveDaLinha(linha: Record<string, unknown>, indiceOriginal: number): string {
+  return linha.id != null ? String(linha.id) : String(indiceOriginal)
+}
