@@ -1,6 +1,6 @@
 import { useId } from 'react'
 import type { Card, Semaforo } from '../api'
-import { valor } from '../format'
+import { comparacao, valor } from '../format'
 
 export const TEXTO_STATUS: Record<Semaforo, string> = {
   verde: 'Meta atingida',
@@ -24,6 +24,7 @@ export function Ajuda({ texto }: { texto: string | null }) {
 }
 
 export function CardKpi({ card }: { card: Card }) {
+  const anterior = comparacao(card.valor, card.anterior, card.formato, card.rotulo_anterior)
   return (
     <article className={`card-kpi ${card.status ? `status-${card.status}` : ''}`}>
       <header className="card-kpi-topo">
@@ -31,6 +32,7 @@ export function CardKpi({ card }: { card: Card }) {
         <Ajuda texto={card.ajuda} />
       </header>
       <p className="card-kpi-valor">{valor(card.valor, card.formato)}</p>
+      {anterior && <p className="card-kpi-anterior">{anterior}</p>}
       {card.status && (
         <p className="card-kpi-status">
           <span className="ponto" aria-hidden="true" />

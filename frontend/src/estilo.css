@@ -415,6 +415,40 @@ a.menu-item.ativo:hover {
   letter-spacing: -0.02em;
   line-height: 1.2;
 }
+.card-kpi-anterior {
+  font-size: 0.8rem;
+  color: var(--suave);
+  font-variant-numeric: tabular-nums;
+}
+.secao-painel {
+  display: grid;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--linha);
+}
+.secao-painel-topo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.75rem;
+}
+.secao-painel h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.secao-painel-descricao {
+  color: var(--suave);
+  max-width: 75ch;
+}
+.subsecao-painel {
+  display: grid;
+  gap: 0.5rem;
+}
+.subsecao-painel h3 {
+  font-size: 0.95rem;
+  font-weight: 650;
+}
 .card-kpi-status {
   display: flex;
   align-items: center;

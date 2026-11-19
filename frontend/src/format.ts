@@ -42,6 +42,25 @@ export function valor(v: number | null | undefined, formato: Formato | string): 
   }
 }
 
+/** Linha de comparação do card com o período anterior: "2025: 184 · ▼ 12%". */
+export function comparacao(
+  atual: number | null,
+  anterior: number | null | undefined,
+  formato: Formato | string,
+  rotulo: string | null | undefined,
+): string | null {
+  if (anterior === null || anterior === undefined) return null
+  const base = `${rotulo ?? 'Anterior'}: ${valor(anterior, formato)}`
+  if (atual === null) return base
+  if (atual === anterior) return `${base} · =`
+  const seta = atual > anterior ? '▲' : '▼'
+  // percentual contra percentual: a diferença em pontos (2% → 3% é +1 p.p., não +50%)
+  if (formato === 'pct') return `${base} · ${seta} ${fixo(1).format(Math.abs(atual - anterior) * 100)} p.p.`
+  if (anterior === 0) return base
+  const pct = Math.round((Math.abs(atual - anterior) / Math.abs(anterior)) * 100)
+  return `${base} · ${seta} ${pct}%`
+}
+
 /** Número compacto para eixos de gráfico. */
 export function eixo(v: number, formato: Formato | string): string {
   if (formato === 'brl') return reais(v).replace('R$ ', '')

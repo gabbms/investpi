@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { arquivoGrandeDemais, textoDoErro, corDoStatus, nomeExportacao, chaveDaLinha, normalizar, textoOcorrencia, textoSemLinhas, valor } from './format'
+import { arquivoGrandeDemais, comparacao, textoDoErro, corDoStatus, nomeExportacao, chaveDaLinha, normalizar, textoOcorrencia, textoSemLinhas, valor } from './format'
 
 describe('valor', () => {
   it('formata reais em bilhões e milhões', () => {
@@ -87,5 +87,28 @@ describe('envio grande demais', () => {
     expect(textoDoErro(413, undefined)).toContain('4 MB')
     expect(textoDoErro(413, 'Arquivo maior que 4 MB.')).toBe('Arquivo maior que 4 MB.')
     expect(textoDoErro(500, undefined)).toBe('Erro 500')
+  })
+})
+
+describe('comparacao', () => {
+  it('mostra o valor anterior e a variação em %', () => {
+    expect(comparacao(162, 184, 'num', '2025')).toBe('2025: 184 · ▼ 12%')
+  })
+  it('em percentuais, a diferença vem em pontos percentuais', () => {
+    expect(comparacao(0.48, 0.44, 'pct', '2025')).toBe('2025: 44,0% · ▲ 4,0 p.p.')
+    expect(comparacao(0.03, 0.02, 'pct', '2025')).toBe('2025: 2,0% · ▲ 1,0 p.p.')
+    expect(comparacao(0.5, 0.62, 'pct', '2025')).toBe('2025: 62,0% · ▼ 12,0 p.p.')
+    expect(comparacao(0.3, 0, 'pct', '2025')).toBe('2025: 0,0% · ▲ 30,0 p.p.')
+  })
+  it('sem variação mostra só o valor anterior com "=" ', () => {
+    expect(comparacao(12, 12, 'num', '2025')).toBe('2025: 12 · =')
+  })
+  it('anterior zero mostra só o valor anterior', () => {
+    expect(comparacao(0, 0, 'num', '2025')).toBe('2025: 0 · =')
+    expect(comparacao(3, 0, 'num', '2025')).toBe('2025: 0')
+  })
+  it('sem anterior ou sem valor atual não há comparação', () => {
+    expect(comparacao(162, null, 'num', '2025')).toBeNull()
+    expect(comparacao(null, 184, 'num', '2025')).toBe('2025: 184')
   })
 })

@@ -20,6 +20,9 @@ export interface Card {
   formato: Formato
   status: Semaforo | null
   ajuda: string | null
+  /** valor do período anterior (indicadores da sede), para a linha de comparação */
+  anterior?: number | null
+  rotulo_anterior?: string | null
 }
 export interface Serie {
   nome: string
@@ -49,6 +52,14 @@ export interface Tabela {
   busca?: boolean
   expansivel?: boolean
 }
+export interface Secao {
+  id: string
+  titulo: string
+  descricao: string | null
+  selo: string | null
+  cards: Card[]
+  subsecoes: Secao[]
+}
 export interface Pagina {
   titulo: string
   subtitulo: string | null
@@ -56,6 +67,7 @@ export interface Pagina {
   cards: Card[]
   graficos: Grafico[]
   tabelas: Tabela[]
+  secoes?: Secao[]
 }
 export interface Opcoes {
   setores: string[]
