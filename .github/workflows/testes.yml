@@ -22,12 +22,12 @@ jobs:
           --health-cmd "pg_isready -U asg -d asg_test"
           --health-interval 3s --health-timeout 3s --health-retries 20
     env:
-      # Mesmos valores do .env.example (usuários de demonstração, banco de teste do CI)
+      # Banco de teste do CI (descartado ao fim de cada execução); senhas só de teste
       TEST_DATABASE_URL: postgresql+psycopg://asg:asg@localhost:5433/asg_test
       ADMIN_EMAIL: admin@asg.local
-      ADMIN_SENHA: Admin@2026
+      ADMIN_SENHA: Ci-Teste-Admin-1
       LEITOR_EMAIL: leitor@asg.local
-      LEITOR_SENHA: Leitor@2026
+      LEITOR_SENHA: Ci-Teste-Leitor-1
     defaults:
       run:
         working-directory: backend
