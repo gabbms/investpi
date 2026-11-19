@@ -84,12 +84,17 @@ def _contexto(ws: Worksheet, titulo: str, filtros: Filtros, versao: Versao) -> N
 
 def _indicadores(wb: Workbook, pagina: Pagina) -> None:
     ws = wb.create_sheet("Indicadores")
-    _cabecalho(ws, 1, ["Indicador", "Valor", "Status"])
-    cards: list[Card] = ([pagina.indice] if pagina.indice else []) + pagina.cards
-    for i, card in enumerate(cards, start=2):
+    _cabecalho(ws, 1, ["Indicador", "Valor", "Status", "Seção"])
+    cards: list[tuple[Card, str | None]] = [(c, None) for c in ([pagina.indice] if pagina.indice else []) + pagina.cards]
+    for secao in pagina.secoes:
+        cards += [(c, secao.titulo) for c in secao.cards]
+        for sub in secao.subsecoes:
+            cards += [(c, f"{secao.titulo} · {sub.titulo}") for c in sub.cards]
+    for i, (card, nome_secao) in enumerate(cards, start=2):
         ws.cell(row=i, column=1, value=card.titulo)
         _escrever(ws, i, 2, card.valor, card.formato)
         ws.cell(row=i, column=3, value=STATUS.get(card.status or "", None))
+        ws.cell(row=i, column=4, value=nome_secao)
     _ajustar(ws)
 
 

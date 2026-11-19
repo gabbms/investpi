@@ -88,3 +88,15 @@ def test_exportar_pagina_inexistente(cliente, com_versao, h_leitor):
 
 def test_exportar_exige_login(cliente, com_versao):
     assert cliente.get("/api/painel/exportar/visao-geral").status_code == 401
+
+
+def test_exportar_investe_piaui(cliente, com_versao, h_leitor):
+    wb = baixar(cliente, h_leitor, "investe-piaui")
+    ws = wb["Indicadores"]
+    assert [c.value for c in ws[1]] == ["Indicador", "Valor", "Status", "Seção"]
+    linhas = list(ws.iter_rows(min_row=2, values_only=True))
+    energia = next(r for r in linhas if r[0] == "Consumo de energia da sede (MWh)")
+    assert energia[1] == 162
+    assert energia[3] == "Nossa operação · Ambiental"
+    assert any(r[3] == "Nossa gestão" for r in linhas)
+    assert len(linhas) == 7 + 15 + 4

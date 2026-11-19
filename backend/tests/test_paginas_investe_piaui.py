@@ -88,3 +88,14 @@ def test_sem_aba_institucional(cliente, sessao_teste, usuarios, h_leitor):
 
 def test_outras_telas_sem_secoes(cliente, com_versao, h_leitor):
     assert pagina(cliente, h_leitor, "visao-geral")["secoes"] == []
+
+
+def test_filtro_vazio_investe_piaui(cliente, com_versao, h_leitor):
+    inteira = pagina(cliente, h_leitor)
+    vazia = pagina(cliente, h_leitor, query="?municipio=Inexistente")
+    impacto = {c["id"]: c for c in secoes(vazia)["impacto"]["cards"]}
+    assert impacto["Investimento Previsto"]["valor"] == 0
+    assert impacto["Empresas Confirmadas"]["valor"] == 0
+    gestao = {c["id"]: c for c in secoes(vazia)["gestao"]["cards"]}
+    assert gestao["% Contratos Fiscalizados"]["valor"] is None
+    assert cards_operacao(vazia) == cards_operacao(inteira)
