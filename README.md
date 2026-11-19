@@ -68,8 +68,14 @@ Os comandos são para o PowerShell, a partir da pasta do projeto (`investpi`, ou
 # 1. Banco de dados
 docker compose up -d db
 
-# 2. Configuração (usuários de demonstração, senha do banco, segredo do login)
-Copy-Item .env.example .env
+# 2. Configuração: crie o arquivo .env com os usuários do seu computador.
+#    Troque as duas senhas por senhas suas (mínimo de 8 caracteres).
+@'
+ADMIN_EMAIL=admin@asg.local
+ADMIN_SENHA=troque-esta-senha-admin
+LEITOR_EMAIL=leitor@asg.local
+LEITOR_SENHA=troque-esta-senha-leitor
+'@ | Set-Content .env -Encoding utf8
 
 # 3. API (Python)
 cd backend
@@ -155,10 +161,10 @@ As publicações de teste da Vercel (uma por PR aberto) usam o mesmo banco do si
 
 | Perfil | E-mail | Senha |
 |---|---|---|
-| Administrador | admin@asg.local | Admin@2026 |
-| Leitor | leitor@asg.local | Leitor@2026 |
+| Administrador | admin@asg.local | a que você definiu em `ADMIN_SENHA` no `.env` |
+| Leitor | leitor@asg.local | a que você definiu em `LEITOR_SENHA` no `.env` |
 
-Valem só no computador local (o site publicado usa outras senhas). As credenciais vêm do arquivo `.env` (copiado de `.env.example`). Para trocar, edite o `.env` antes de rodar `inicializar`.
+Valem só no computador local. O site publicado tem senhas próprias, que ficam só nas configurações da Vercel. O `.env` não vai para o GitHub (está no `.gitignore`). O banco local (`asg`) e o segredo do login já têm valores padrão para o computador, por isso não precisam estar no `.env`. Para trocar as senhas depois de rodar `inicializar`, use a tela **Usuários**.
 
 - **Leitor**: vê todas as telas do painel e usa os filtros.
 - **Administrador**: tudo do leitor, mais enviar planilha, ver o histórico de versões, voltar a uma versão anterior e cadastrar, desativar ou redefinir a senha de usuários.
@@ -199,7 +205,7 @@ Os testes do backend usam um banco separado (`asg_test`), criado automaticamente
 ```
 SistemaWeb/
 ├── docker-compose.yml        banco PostgreSQL 17 (porta 5433)
-├── .env.example              configuração e usuários de demonstração
+├── .env                      seus usuários locais (não vai para o GitHub; ver "Como rodar")
 ├── backend/                  API em FastAPI (Python)
 │   ├── app/planilha/         leitura da planilha, esquema das abas e validação
 │   ├── app/calculos/         medidas DAX portadas, filtros, metas, Índice ASG, checagens

@@ -35,7 +35,8 @@ def _criar_usuario(s: Session, email: str | None, senha: str | None, nome: str, 
     return 1
 
 
-SENHAS_DE_DEMONSTRACAO = {"Admin@2026", "Leitor@2026"}  # publicadas no README
+# senhas que já apareceram no repositório: as antigas de demonstração e as de exemplo do README
+SENHAS_DE_DEMONSTRACAO = {"Admin@2026", "Leitor@2026", "troque-esta-senha-admin", "troque-esta-senha-leitor"}
 LOCAIS = {"localhost", "127.0.0.1", "::1"}
 
 
