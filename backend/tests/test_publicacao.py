@@ -76,6 +76,14 @@ def test_carga_na_nuvem_recusa_senha_de_demonstracao():
         cli.checar_destino(_cfg(DATABASE_URL=nuvem, ADMIN_SENHA="Admin@2026", LEITOR_SENHA="Outra#2026xyzAB"))
 
 
+def test_carga_na_nuvem_recusa_senhas_de_exemplo_do_readme():
+    nuvem = "postgres://u:s@ep-x.neon.tech/neondb?sslmode=require"
+    with pytest.raises(SystemExit, match="ADMIN_SENHA"):
+        cli.checar_destino(_cfg(DATABASE_URL=nuvem, ADMIN_SENHA="troque-esta-senha-admin", LEITOR_SENHA="Outra#2026xyzAB"))
+    with pytest.raises(SystemExit, match="LEITOR_SENHA"):
+        cli.checar_destino(_cfg(DATABASE_URL=nuvem, ADMIN_SENHA="Forte#2026xyzAB", LEITOR_SENHA="troque-esta-senha-leitor"))
+
+
 def test_carga_local_aceita_senha_de_demonstracao():
     cli.checar_destino(_cfg(ADMIN_SENHA="Admin@2026", LEITOR_SENHA="Leitor@2026"))
     nuvem = "postgres://u:s@ep-x.neon.tech/neondb"
