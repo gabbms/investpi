@@ -6,6 +6,43 @@ A tela inicial, **Investe Piauí**, mostra os indicadores ASG da própria instit
 
 É a peça "Sistema" do fluxo *Sistema → Base de dados → Painel BI* do desafio, entregue como MVP. A especificação está em [docs/superpowers/specs/2026-11-17-sistema-asg-web-design.md](docs/superpowers/specs/2026-11-17-sistema-asg-web-design.md).
 
+- **Site publicado:** https://investpi.vercel.app (login abaixo, em [Site publicado](#site-publicado)).
+- **Dicionário de dados:** [docs/dicionarios/Dicionario_de_Dados.md](docs/dicionarios/Dicionario_de_Dados.md) (também em Excel).
+- **Dicionário de indicadores e fórmulas, com o Índice ASG (score ESG):** [docs/dicionarios/Dicionario_de_Indicadores_e_Formulas.md](docs/dicionarios/Dicionario_de_Indicadores_e_Formulas.md) (também em Excel).
+
+## Dados utilizados
+
+A base é uma planilha Excel, [backend/dados/base_modelo.xlsx](backend/dados/base_modelo.xlsx), com uma aba por tabela. O sistema lê 18 abas:
+
+- **Cadastros (d):** `dEmpresa` (40 empresas), `dSetor` (4 setores e as vice-presidências), `dProjeto` (48 projetos, a tabela central), `dMetas` (24 metas ASG), `dPremissas` (fatores de emissão), `dIndicador` (catálogo de 82 indicadores, opcional) e `dInstitucional` (15 indicadores da sede da Investe Piauí, opcional).
+- **Fatos (f), por projeto:** `fAmbiental`, `fSocial`, `fTransparencia`, `fEnergia`, `fHidrogenio`, `fMineracao`, `fSustentabilidade`, `fFinanceiro` (mensal), `fContratos`, `fManutencao` e `fEquipe`.
+
+Os dados são **simulados pelo Grupo 3** para prototipação (premissa P05 da planilha), exceto o fator de emissão da rede elétrica, que vem do MCTI. Para usar dados reais, basta preencher a planilha com as mesmas colunas e enviá-la pelo site. Cada coluna (tipo, regra de validação, exemplo) e a origem e o responsável de cada tabela estão no [Dicionário de dados](docs/dicionarios/Dicionario_de_Dados.md).
+
+## Indicadores e Índice ASG (score ESG)
+
+- **82 indicadores** nos pilares Ambiental, Social e Governança, cada um com cálculo, tema material, ODS e referência GRI (tela Indicadores, que também exporta o índice de conteúdo GRI).
+- **24 metas ASG** com polaridade, limite de atenção e peso. Cada meta recebe um farol: Atingida (verde), Atenção (amarelo) ou Abaixo (vermelho).
+- **Índice ASG**, o score ESG do projeto, de 0 a 100:
+  - atingimento de cada meta: "Maior melhor" = mínimo(valor ÷ meta; 1); "Menor melhor" = 1 se valor ≤ meta, 0,5 se valor ≤ limite, 0 se não;
+  - índice do pilar = 100 × Σ(peso × atingimento) ÷ Σ(peso);
+  - **Índice ASG Geral** = média dos três pilares; ≥ 75 verde, 50 a 74 amarelo, < 50 vermelho.
+  - Na planilha modelo: **68** no geral (Ambiental 75, Social 67, Governança 62).
+- **Indicadores da própria Investe Piauí** (tela inicial): gestão, operação da sede e impacto da carteira.
+
+As fórmulas completas, a lista das metas e dos indicadores com os valores atuais estão no [Dicionário de indicadores e fórmulas](docs/dicionarios/Dicionario_de_Indicadores_e_Formulas.md). O código dos cálculos fica em [backend/app/calculos/](backend/app/calculos/).
+
+## Tecnologias
+
+| Parte | Tecnologia |
+|---|---|
+| Site (frontend) | React 19, TypeScript, Vite, React Router, ECharts (gráficos) |
+| API (backend) | Python 3.12, FastAPI, pandas e openpyxl (leitura da planilha), SQLAlchemy |
+| Banco de dados | PostgreSQL 17 (Docker no computador; Neon no site publicado) |
+| Login | senhas com bcrypt, sessão com token JWT, perfis administrador e leitor |
+| Testes | pytest (backend), Vitest (frontend), GitHub Actions a cada PR |
+| Publicação | Vercel (site e API), com publicação automática a cada merge na `main` |
+
 ## O que é preciso ter instalado
 
 - Docker Desktop (para o banco PostgreSQL)
@@ -171,14 +208,17 @@ SistemaWeb/
 │   ├── app/repositorio.py    gravação das versões no banco
 │   ├── dados/base_modelo.xlsx  planilha modelo e carga inicial
 │   └── tests/
-└── frontend/                 site em React + ECharts
-    └── src/                  telas, componentes e formatação pt-BR
+├── frontend/                 site em React + ECharts
+│   └── src/                  telas, componentes e formatação pt-BR
+└── docs/
+    ├── dicionarios/          dicionário de dados e de indicadores e fórmulas (Markdown e Excel)
+    └── superpowers/          especificações (specs) e planos de cada funcionalidade
 ```
 
-Os cálculos seguem as medidas DAX do Power BI v3 (`PowerBI/Painel_ASG_v3/.../_Medidas.tmdl`). Cada medida em [backend/app/calculos/medidas.py](backend/app/calculos/medidas.py) tem o mesmo nome da medida DAX correspondente.
+Os cálculos seguem as medidas DAX do painel Power BI v3 do grupo (arquivo `_Medidas.tmdl`, que fica fora deste repositório). Cada medida em [backend/app/calculos/medidas.py](backend/app/calculos/medidas.py) tem o mesmo nome da medida DAX correspondente.
 
 ## Fora do MVP
 
-Ficaram para depois: Panorama Piauí (dados públicos ANEEL/ANM), Relações Internacionais, Evolução mensal, Ficha do Projeto e Catálogo de Indicadores; restrição de visualização por vice-presidência; envio separado por área; publicação na internet (o MVP roda localmente); recuperação de senha por e-mail.
+Ficaram para depois: Panorama Piauí (dados públicos ANEEL/ANM), Relações Internacionais, Evolução mensal e Ficha do Projeto; restrição de visualização por vice-presidência; envio separado por área; recuperação de senha por e-mail.
 
 Os dados da base são simulados pelo grupo, exceto o fator de emissão do MCTI.
