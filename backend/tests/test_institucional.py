@@ -63,3 +63,27 @@ def test_planilha_sem_aba_e_aceita():
 def test_filtro_nao_altera():
     b = aplicar_filtros(base_modelo(), Filtros(municipios=["Inexistente"]))
     assert len(b["dInstitucional"]) == 15
+
+
+def _erros_institucional(b):
+    return [e for e in validar_estrutura(b) if e.aba == "dInstitucional"]
+
+
+def test_aba_presente_sem_coluna_e_recusada():
+    b = base_modelo()
+    b["dInstitucional"] = b["dInstitucional"].drop(columns=["Polaridade"])
+    assert [e.mensagem for e in _erros_institucional(b)] == ["Coluna obrigatória ausente: Polaridade"]
+
+
+def test_valores_invalidos_sao_recusados():
+    b = base_modelo()
+    d = b["dInstitucional"]
+    d.loc[d["ID Institucional"] == "INS01", "Polaridade"] = "menor melhor"
+    d.loc[d["ID Institucional"] == "INS07", "Formato"] = "pct"
+    d.loc[d["ID Institucional"] == "INS13", "Pilar"] = "ambiental"
+    colunas = sorted(e.coluna for e in _erros_institucional(b))
+    assert colunas == ["Formato", "Pilar", "Polaridade"]
+
+
+def test_modelo_valido():
+    assert _erros_institucional(base_modelo()) == []

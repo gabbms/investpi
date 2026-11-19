@@ -66,13 +66,15 @@ def _campos_filtro(filtros: Filtros) -> list[tuple[str, list[str]]]:
     ]
 
 
-def _contexto(ws: Worksheet, titulo: str, filtros: Filtros, versao: Versao) -> None:
+def _contexto(ws: Worksheet, titulo: str, filtros: Filtros, versao: Versao,
+              notas: list[tuple[str, str]] | None = None) -> None:
     ws.title = "Contexto"
     linhas = [
         ("Página", titulo),
         ("Gerado em", data_local(datetime.now(FUSO))),
         ("Versão dos dados", f"nº {versao.numero} · {versao.nome_arquivo} · enviada em {data_local(versao.criado_em, com_hora=False)}"),
         *_campos_filtro(filtros),
+        *(notas or []),
     ]
     for rotulo, valor in linhas:
         if isinstance(valor, list):
@@ -87,9 +89,10 @@ def _indicadores(wb: Workbook, pagina: Pagina) -> None:
     _cabecalho(ws, 1, ["Indicador", "Valor", "Status", "Seção"])
     cards: list[tuple[Card, str | None]] = [(c, None) for c in ([pagina.indice] if pagina.indice else []) + pagina.cards]
     for secao in pagina.secoes:
-        cards += [(c, secao.titulo) for c in secao.cards]
+        selo = f" ({secao.selo})" if secao.selo else ""
+        cards += [(c, secao.titulo + selo) for c in secao.cards]
         for sub in secao.subsecoes:
-            cards += [(c, f"{secao.titulo} · {sub.titulo}") for c in sub.cards]
+            cards += [(c, f"{secao.titulo} · {sub.titulo}{selo}") for c in sub.cards]
     for i, (card, nome_secao) in enumerate(cards, start=2):
         ws.cell(row=i, column=1, value=card.titulo)
         _escrever(ws, i, 2, card.valor, card.formato)
@@ -144,7 +147,10 @@ def _tabelas(wb: Workbook, pagina: Pagina) -> None:
 
 def pagina_para_xlsx(pagina: Pagina, filtros: Filtros, versao: Versao) -> bytes:
     wb = Workbook()
-    _contexto(wb.active, pagina.titulo, filtros, versao)
+    # o que a tela diz sobre cada seção (ex.: dados de demonstração, não muda com os filtros) vai junto
+    notas = [(s.titulo, f"{s.selo}. {s.descricao}" if s.selo and s.descricao else (s.descricao or s.selo or ""))
+             for s in pagina.secoes if s.descricao or s.selo]
+    _contexto(wb.active, pagina.titulo, filtros, versao, notas)
     _indicadores(wb, pagina)
     _graficos(wb, pagina)
     _tabelas(wb, pagina)

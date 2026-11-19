@@ -97,6 +97,14 @@ def test_exportar_investe_piaui(cliente, com_versao, h_leitor):
     linhas = list(ws.iter_rows(min_row=2, values_only=True))
     energia = next(r for r in linhas if r[0] == "Consumo de energia da sede (MWh)")
     assert energia[1] == 162
-    assert energia[3] == "Nossa operação · Ambiental"
+    assert energia[3] == "Nossa operação · Ambiental (Dados de demonstração)"
     assert any(r[3] == "Nossa gestão" for r in linhas)
     assert len(linhas) == 7 + 15 + 4
+
+
+def test_exportar_investe_piaui_avisa_demonstracao(cliente, com_versao, h_leitor):
+    wb = baixar(cliente, h_leitor, "investe-piaui", "?municipio=Inexistente")
+    secoes = {r[3] for r in wb["Indicadores"].iter_rows(min_row=2, values_only=True)}
+    assert "Nossa operação · Ambiental (Dados de demonstração)" in secoes
+    notas = [r[1] for r in wb["Contexto"].iter_rows(values_only=True) if r[0] == "Nossa operação"]
+    assert notas and "Não mudam com os filtros" in notas[0]
