@@ -24,7 +24,9 @@ export const COR = {
 }
 
 export const PILARES: ItemMenu[] = [
-  { rota: '/', rotulo: 'Visão Geral', cor: COR.geral, pronto: true, painel: true, endpoint: '/api/painel/visao-geral' },
+  // tela inicial: os indicadores ASG da própria instituição
+  { rota: '/', rotulo: 'Investe Piauí', cor: COR.geral, pronto: true, painel: true, endpoint: '/api/painel/investe-piaui' },
+  { rota: '/carteira', rotulo: 'Visão Geral', cor: COR.geral, pronto: true, painel: true, endpoint: '/api/painel/visao-geral' },
   { rota: '/ambiental', rotulo: 'Ambiental', cor: COR.ambiental, pronto: true, painel: true, endpoint: '/api/painel/ambiental' },
   { rota: '/social', rotulo: 'Social', cor: COR.social, pronto: true, painel: true, endpoint: '/api/painel/social' },
   { rota: '/governanca', rotulo: 'Governança', cor: COR.governanca, pronto: true, painel: true, endpoint: '/api/painel/governanca' },

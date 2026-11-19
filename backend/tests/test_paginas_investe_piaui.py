@@ -1,0 +1,135 @@
+"""Tela "Investe Piauí": indicadores ASG da própria instituição (gestão, operação, impacto)."""
+import pytest
+
+from app import repositorio
+from tests.apoio import base_modelo
+
+AVISO_SEM_ABA = "A planilha ainda não tem a aba dInstitucional."
+
+
+def _salvar(sessao, usuarios, base):
+    repositorio.limpar_cache()
+    repositorio.salvar_versao(sessao, base, usuarios["admin"].id, "base.xlsx", [])
+
+
+@pytest.fixture
+def com_versao(sessao_teste, usuarios):
+    _salvar(sessao_teste, usuarios, base_modelo())
+    yield
+    repositorio.limpar_cache()
+
+
+def pagina(cliente, h, nome="investe-piaui", query=""):
+    r = cliente.get(f"/api/painel/{nome}{query}", headers=h)
+    assert r.status_code == 200, r.text
+    return r.json()
+
+
+def secoes(p):
+    return {s["id"]: s for s in p["secoes"]}
+
+
+def cards_operacao(p):
+    return {c["id"]: c for sub in secoes(p)["operacao"]["subsecoes"] for c in sub["cards"]}
+
+
+def test_tres_secoes(cliente, com_versao, h_leitor):
+    p = pagina(cliente, h_leitor)
+    assert p["titulo"] == "Investe Piauí"
+    assert p["cards"] == []
+    assert [s["id"] for s in p["secoes"]] == ["gestao", "operacao", "impacto"]
+    op = secoes(p)["operacao"]
+    assert op["selo"] == "Dados de demonstração"
+    assert [s["titulo"] for s in op["subsecoes"]] == ["Ambiental", "Social", "Governança"]
+    assert len(cards_operacao(p)) == 15
+
+
+def test_card_institucional(cliente, com_versao, h_leitor):
+    c = cards_operacao(pagina(cliente, h_leitor))["INS01"]
+    assert c["titulo"] == "Consumo de energia da sede (MWh)"
+    assert c["valor"] == 162
+    assert c["anterior"] == 184
+    assert c["rotulo_anterior"] == "2025"
+    assert c["status"] == "amarelo"
+
+
+def test_gestao_usa_carteira(cliente, com_versao, h_leitor):
+    gestao = {c["id"]: c for c in secoes(pagina(cliente, h_leitor))["gestao"]["cards"]}
+    assert list(gestao) == [
+        "% Contratos Fiscalizados", "% Recomendações Atendidas", "% Execução Orçamentária",
+        "% Prestação de Contas Atualizada", "% Colaboradores Treinados Integridade",
+        "Tempo Médio Resposta dias", "Casos Fraude ou Corrupção",
+    ]
+    governanca = {c["id"]: c for c in pagina(cliente, h_leitor, "governanca")["cards"]}
+    assert gestao["% Contratos Fiscalizados"]["valor"] == governanca["% Contratos Fiscalizados"]["valor"]
+    assert gestao["% Contratos Fiscalizados"]["status"] == "vermelho"
+
+
+def test_impacto(cliente, com_versao, h_leitor):
+    impacto = {c["id"]: c for c in secoes(pagina(cliente, h_leitor))["impacto"]["cards"]}
+    assert list(impacto) == [
+        "Investimento Previsto", "Empresas Confirmadas", "Empregos Diretos Gerados", "Emissões Evitadas tCO2e",
+    ]
+    assert impacto["Empresas Confirmadas"]["valor"] == 17
+
+
+def test_sem_aba_institucional(cliente, sessao_teste, usuarios, h_leitor):
+    b = base_modelo()
+    del b["dInstitucional"]
+    _salvar(sessao_teste, usuarios, b)
+    try:
+        op = secoes(pagina(cliente, h_leitor))["operacao"]
+    finally:
+        repositorio.limpar_cache()
+    assert op["descricao"] == AVISO_SEM_ABA
+    assert op["subsecoes"] == [] and op["cards"] == []
+    assert op["selo"] is None
+
+
+def test_outras_telas_sem_secoes(cliente, com_versao, h_leitor):
+    assert pagina(cliente, h_leitor, "visao-geral")["secoes"] == []
+
+
+def test_filtro_vazio_investe_piaui(cliente, com_versao, h_leitor):
+    inteira = pagina(cliente, h_leitor)
+    vazia = pagina(cliente, h_leitor, query="?municipio=Inexistente")
+    impacto = {c["id"]: c for c in secoes(vazia)["impacto"]["cards"]}
+    assert impacto["Investimento Previsto"]["valor"] == 0
+    assert impacto["Empresas Confirmadas"]["valor"] == 0
+    gestao = {c["id"]: c for c in secoes(vazia)["gestao"]["cards"]}
+    assert gestao["% Contratos Fiscalizados"]["valor"] is None
+    assert cards_operacao(vazia) == cards_operacao(inteira)
+
+
+AVISO_ABA_VAZIA = "A aba dInstitucional está vazia: preencha uma linha por indicador da sede."
+
+
+def test_aba_institucional_vazia(cliente, sessao_teste, usuarios, h_leitor):
+    b = base_modelo()
+    b["dInstitucional"] = b["dInstitucional"].iloc[0:0]
+    _salvar(sessao_teste, usuarios, b)
+    try:
+        op = secoes(pagina(cliente, h_leitor))["operacao"]
+    finally:
+        repositorio.limpar_cache()
+    assert op["descricao"] == AVISO_ABA_VAZIA
+    assert op["subsecoes"] == []
+
+
+def test_titulo_sem_unidade_percentual(cliente, com_versao, h_leitor):
+    c = cards_operacao(pagina(cliente, h_leitor))
+    assert c["INS07"]["titulo"] == "Mulheres no quadro de servidores"
+    assert c["INS01"]["titulo"] == "Consumo de energia da sede (MWh)"
+
+
+def test_anos_de_referencia_diferentes(cliente, sessao_teste, usuarios, h_leitor):
+    b = base_modelo()
+    d = b["dInstitucional"]
+    d.loc[d["ID Institucional"] == "INS01", "Ano Referência"] = 2025
+    _salvar(sessao_teste, usuarios, b)
+    try:
+        p = pagina(cliente, h_leitor)
+    finally:
+        repositorio.limpar_cache()
+    assert secoes(p)["operacao"]["descricao"].endswith("Anos de referência: 2025 a 2026 (cada card mostra o seu).")
+    assert cards_operacao(p)["INS01"]["rotulo_anterior"] == "2024"

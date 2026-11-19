@@ -19,6 +19,9 @@ NOME_TIPO = {
 
 PILARES = {"Ambiental", "Social", "Governança"}
 POLARIDADES = {"Maior melhor", "Menor melhor"}
+FORMATOS_INSTITUCIONAL = {"%", "n", "dec", "R$"}
+# abas opcionais que, quando enviadas, são conferidas por inteiro: o painel mostra o que vier nelas
+OPCIONAIS_CONFERIDAS = {"dInstitucional"}
 
 
 @dataclass
@@ -57,6 +60,18 @@ class _Coletor:
         return self.erros
 
 
+def _valores_permitidos(c: _Coletor, base: Base, aba: str, regras) -> None:
+    df = base.get(aba)
+    if df is None:
+        return
+    for col, permitidos, texto in regras:
+        if col not in df.columns:
+            continue
+        for idx, v in df[col].items():
+            if v not in permitidos:
+                c.add(aba, _linha_excel(idx), col, f"{texto}: {v!r}", grupo=texto)
+
+
 def validar_estrutura(base: Base) -> list[ErroEstrutura]:
     c = _Coletor()
 
@@ -67,7 +82,7 @@ def validar_estrutura(base: Base) -> list[ErroEstrutura]:
             continue
         df = base[nome]
         ausentes = [col for col in espec.colunas if col not in df.columns]
-        if ausentes and not espec.obrigatoria:
+        if ausentes and not espec.obrigatoria and nome not in OPCIONAIS_CONFERIDAS:
             continue  # aba opcional incompleta é ignorada pelo painel
         for col in ausentes:
             c.add(nome, None, col, f"Coluna obrigatória ausente: {col}")
@@ -105,18 +120,13 @@ def validar_estrutura(base: Base) -> list[ErroEstrutura]:
                     c.add(nome, _linha_excel(idx), col, f"{col} {v} não existe em {aba_ref}",
                           grupo=f"{col} inexistente em {aba_ref}")
 
-    metas = base.get("dMetas")
-    if metas is not None:
-        regras = [
-            ("Medida", MEDIDAS_META, "Medida que o sistema não sabe calcular"),
-            ("Pilar", PILARES, "Pilar deve ser Ambiental, Social ou Governança"),
-            ("Polaridade", POLARIDADES, 'Polaridade deve ser "Maior melhor" ou "Menor melhor"'),
-        ]
-        for col, permitidos, texto in regras:
-            if col not in metas.columns:
-                continue
-            for idx, v in metas[col].items():
-                if v not in permitidos:
-                    c.add("dMetas", _linha_excel(idx), col, f"{texto}: {v!r}", grupo=texto)
+    pilar = ("Pilar", PILARES, "Pilar deve ser Ambiental, Social ou Governança")
+    polaridade = ("Polaridade", POLARIDADES, 'Polaridade deve ser "Maior melhor" ou "Menor melhor"')
+    _valores_permitidos(c, base, "dMetas", [
+        ("Medida", MEDIDAS_META, "Medida que o sistema não sabe calcular"), pilar, polaridade,
+    ])
+    _valores_permitidos(c, base, "dInstitucional", [
+        pilar, polaridade, ("Formato", FORMATOS_INSTITUCIONAL, 'Formato deve ser "%", "n", "dec" ou "R$"'),
+    ])
 
     return c.resumir()

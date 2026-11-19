@@ -8,6 +8,7 @@ import type { ExportacaoExtra } from '../menu'
 import { CardKpi } from './CardKpi'
 import { Grafico } from './Grafico'
 import { IndiceSelo } from './IndiceSelo'
+import { SecaoPainel } from './SecaoPainel'
 import { Tabela } from './Tabela'
 
 interface Props {
@@ -109,14 +110,20 @@ export function PaginaPainel({ endpoint, cor, exportacaoExtra }: Props) {
         </div>
       </header>
 
-      <div className={`linha-kpi ${pagina.indice ? 'com-indice' : ''}`}>
-        {pagina.indice && <IndiceSelo card={pagina.indice} />}
-        <div className="cards">
-          {pagina.cards.map((c) => (
-            <CardKpi key={c.id} card={c} />
-          ))}
+      {(pagina.indice || pagina.cards.length > 0) && (
+        <div className={`linha-kpi ${pagina.indice ? 'com-indice' : ''}`}>
+          {pagina.indice && <IndiceSelo card={pagina.indice} />}
+          <div className="cards">
+            {pagina.cards.map((c) => (
+              <CardKpi key={c.id} card={c} />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
+
+      {(pagina.secoes ?? []).map((s) => (
+        <SecaoPainel key={s.id} secao={s} />
+      ))}
 
       {pagina.graficos.length > 0 && (
         <div className="graficos">

@@ -2,7 +2,8 @@
 
 Os filtros valem em dProjeto (e em dSetor para a Vice-Presidência, em dEmpresa
 para a Empresa); as tabelas f* ficam só com os projetos que restaram e dEmpresa
-só com as empresas desses projetos. dSetor, dMetas, dPremissas e dIndicador passam sem filtro.
+só com as empresas desses projetos. dSetor, dMetas, dPremissas, dIndicador e dInstitucional passam
+sem filtro.
 """
 from __future__ import annotations
 
@@ -11,7 +12,7 @@ from dataclasses import dataclass, field
 
 from app.planilha.leitura import Base
 
-TABELAS_SEM_FILTRO = {"dSetor", "dMetas", "dPremissas", "dIndicador"}
+TABELAS_SEM_FILTRO = {"dSetor", "dMetas", "dPremissas", "dIndicador", "dInstitucional"}
 
 
 @dataclass

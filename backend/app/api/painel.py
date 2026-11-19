@@ -15,13 +15,14 @@ from app.gri import montar_indice_gri
 from app.pesos import PedidoPesos, simular
 from app.paginas.comum import FUSO
 from app.models import Usuario
-from app.paginas import indicadores, pilares, qualidade, setores, temas, visao_geral
+from app.paginas import indicadores, investe_piaui, pilares, qualidade, setores, temas, visao_geral
 from app.paginas.tipos import Pagina
 from app.planilha.leitura import Base, vazio
 
 router = APIRouter(prefix="/api/painel", tags=["painel"])
 
 PAGINAS: dict[str, Callable[[Base], Pagina]] = {
+    "investe-piaui": investe_piaui.montar,
     "visao-geral": visao_geral.montar,
     "ambiental": pilares.ambiental,
     "social": pilares.social,

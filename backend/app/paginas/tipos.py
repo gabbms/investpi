@@ -14,6 +14,9 @@ class Card(BaseModel):
     formato: FormatoValor
     status: Semaforo | None = None
     ajuda: str | None = None
+    # valor do período anterior, para a comparação no card (ex.: indicadores da sede)
+    anterior: float | None = None
+    rotulo_anterior: str | None = None
 
 
 class Serie(BaseModel):
@@ -52,6 +55,16 @@ class Tabela(BaseModel):
     expansivel: bool = False
 
 
+class Secao(BaseModel):
+    """Bloco da tela com título próprio; as subseções aparecem dentro dele (ex.: uma por pilar)."""
+    id: str
+    titulo: str
+    descricao: str | None = None
+    selo: str | None = None
+    cards: list[Card] = []
+    subsecoes: list["Secao"] = []
+
+
 class Pagina(BaseModel):
     titulo: str
     subtitulo: str | None = None
@@ -59,3 +72,5 @@ class Pagina(BaseModel):
     cards: list[Card] = []
     graficos: list[Grafico] = []
     tabelas: list[Tabela] = []
+    # blocos com título (tela Investe Piauí); as outras telas usam só cards, gráficos e tabelas
+    secoes: list[Secao] = []
