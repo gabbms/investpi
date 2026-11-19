@@ -87,3 +87,15 @@ def test_valores_invalidos_sao_recusados():
 
 def test_modelo_valido():
     assert _erros_institucional(base_modelo()) == []
+
+
+def test_modelo_formata_dinstitucional_como_tabela():
+    import openpyxl
+
+    from tests.apoio import MODELO
+
+    wb = openpyxl.load_workbook(MODELO)
+    ws = wb["dInstitucional"]
+    assert dict(ws.tables.items()) == {"dInstitucional": "A1:M16"}
+    assert ws.freeze_panes == "B2"
+    assert ws.tables["dInstitucional"].tableStyleInfo.name == wb["dEmpresa"].tables["dEmpresa"].tableStyleInfo.name

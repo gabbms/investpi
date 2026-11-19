@@ -99,3 +99,37 @@ def test_filtro_vazio_investe_piaui(cliente, com_versao, h_leitor):
     gestao = {c["id"]: c for c in secoes(vazia)["gestao"]["cards"]}
     assert gestao["% Contratos Fiscalizados"]["valor"] is None
     assert cards_operacao(vazia) == cards_operacao(inteira)
+
+
+AVISO_ABA_VAZIA = "A aba dInstitucional está vazia: preencha uma linha por indicador da sede."
+
+
+def test_aba_institucional_vazia(cliente, sessao_teste, usuarios, h_leitor):
+    b = base_modelo()
+    b["dInstitucional"] = b["dInstitucional"].iloc[0:0]
+    _salvar(sessao_teste, usuarios, b)
+    try:
+        op = secoes(pagina(cliente, h_leitor))["operacao"]
+    finally:
+        repositorio.limpar_cache()
+    assert op["descricao"] == AVISO_ABA_VAZIA
+    assert op["subsecoes"] == []
+
+
+def test_titulo_sem_unidade_percentual(cliente, com_versao, h_leitor):
+    c = cards_operacao(pagina(cliente, h_leitor))
+    assert c["INS07"]["titulo"] == "Mulheres no quadro de servidores"
+    assert c["INS01"]["titulo"] == "Consumo de energia da sede (MWh)"
+
+
+def test_anos_de_referencia_diferentes(cliente, sessao_teste, usuarios, h_leitor):
+    b = base_modelo()
+    d = b["dInstitucional"]
+    d.loc[d["ID Institucional"] == "INS01", "Ano Referência"] = 2025
+    _salvar(sessao_teste, usuarios, b)
+    try:
+        p = pagina(cliente, h_leitor)
+    finally:
+        repositorio.limpar_cache()
+    assert secoes(p)["operacao"]["descricao"].endswith("Anos de referência: 2025 a 2026 (cada card mostra o seu).")
+    assert cards_operacao(p)["INS01"]["rotulo_anterior"] == "2024"

@@ -86,7 +86,7 @@ def _contexto(ws: Worksheet, titulo: str, filtros: Filtros, versao: Versao,
 
 def _indicadores(wb: Workbook, pagina: Pagina) -> None:
     ws = wb.create_sheet("Indicadores")
-    _cabecalho(ws, 1, ["Indicador", "Valor", "Status", "Seção"])
+    _cabecalho(ws, 1, ["Indicador", "Valor", "Status", "Seção", "Valor anterior", "Período anterior"])
     cards: list[tuple[Card, str | None]] = [(c, None) for c in ([pagina.indice] if pagina.indice else []) + pagina.cards]
     for secao in pagina.secoes:
         selo = f" ({secao.selo})" if secao.selo else ""
@@ -98,6 +98,8 @@ def _indicadores(wb: Workbook, pagina: Pagina) -> None:
         _escrever(ws, i, 2, card.valor, card.formato)
         ws.cell(row=i, column=3, value=STATUS.get(card.status or "", None))
         ws.cell(row=i, column=4, value=nome_secao)
+        _escrever(ws, i, 5, card.anterior, card.formato)
+        ws.cell(row=i, column=6, value=card.rotulo_anterior)
     _ajustar(ws)
 
 
