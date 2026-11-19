@@ -6,7 +6,7 @@ Valores calculados sobre a planilha modelo (dados simulados pelo Grupo 3).
 ## Índice ASG (score ESG)
 
 - **O que é:** O Índice ASG é o SCORE ESG do projeto: uma nota de 0 a 100 que resume quanto das 24 metas ASG (aba dMetas) foi atingido. Existe um índice por pilar (Ambiental, Social, Governança) e o Índice ASG Geral.
-- **1. Atingimento de cada meta (0 a 1):** Polaridade "Maior melhor": atingimento = mínimo(valor ÷ meta; 1). Ex.: meta 100%, valor 55% → 0,55. Polaridade "Menor melhor": 1 se valor ≤ meta; 0,5 se valor ≤ limite de atenção; 0 nos outros casos. Meta sem valor calculado (ex.: filtro sem projetos) fica fora da conta.
+- **1. Atingimento de cada meta (0 a 1, ou 0% a 100%):** Polaridade "Maior melhor": atingimento = mínimo(valor ÷ meta; 1). Ex.: meta 100%, valor 55% → 0,55. Polaridade "Menor melhor": 1 se valor ≤ meta; 0,5 se valor ≤ limite de atenção; 0 nos outros casos. Meta sem valor calculado (ex.: filtro sem projetos) fica fora da conta.
 - **2. Índice do pilar (0 a 100):** Índice do pilar = 100 × Σ(peso × atingimento) ÷ Σ(peso), somando as metas do pilar que têm valor. Pesos: 1 = monitoramento, 2 = prioritário, 3 = temas de nota máxima na matriz de materialidade (T1, T4, T14).
 - **3. Índice ASG Geral (0 a 100):** Índice ASG Geral = (Índice Ambiental + Índice Social + Índice Governança) ÷ 3. Os três pilares pesam igual, independentemente de quantas metas cada um tem.
 - **4. Faixas de cor do índice:** ≥ 75 verde · de 50 a 74 amarelo · < 50 vermelho.
@@ -18,32 +18,32 @@ Valores calculados sobre a planilha modelo (dados simulados pelo Grupo 3).
 
 ## Metas ASG (24) — entram no Índice ASG
 
-| ID | Pilar | Meta | Medida | Polaridade | Valor-alvo | Limite | Formato | Peso | Valor atual | Status |
-|---|---|---|---|---|---|---|---|---|---|---|
-| META01 | Ambiental | Projetos com licença ambiental válida | % Licença Válida | Maior melhor | 100,0% | 80,0% | % | 2 | 54,2% | Abaixo |
-| META02 | Ambiental | Projetos com avaliação de impacto ambiental | % Avaliação Impacto Ambiental | Maior melhor | 100,0% | 80,0% | % | 2 | 75,0% | Abaixo |
-| META03 | Ambiental | Resíduos com destinação correta | % Resíduos Destinados Corretamente | Maior melhor | 95,0% | 85,0% | % | 2 | 97,5% | Atingida |
-| META04 | Ambiental | Resíduos reciclados | % Resíduos Reciclados | Maior melhor | 50,0% | 30,0% | % | 2 | 66,0% | Atingida |
-| META05 | Ambiental | Água reutilizada | % Água Reutilizada | Maior melhor | 50,0% | 30,0% | % | 3 | 59,2% | Atingida |
-| META06 | Ambiental | Projetos com tecnologia limpa | % Projetos Tecnologia Limpa | Maior melhor | 90,0% | 70,0% | % | 2 | 95,8% | Atingida |
-| META07 | Ambiental | Energia renovável nos eletrolisadores | % Renovável nos Eletrolisadores | Maior melhor | 95,0% | 90,0% | % | 2 | 94,8% | Atenção |
-| META08 | Ambiental | Incidentes ambientais | Incidentes Ambientais | Menor melhor | 0 | 5 | n | 3 | 13 | Abaixo |
-| META09 | Social | Empregos para a população local | % Empregos População Local | Maior melhor | 60,0% | 40,0% | % | 2 | 60,8% | Atingida |
-| META10 | Social | Empregos para mulheres | % Empregos Mulheres | Maior melhor | 30,0% | 20,0% | % | 1 | 25,0% | Atenção |
-| META11 | Social | Empregos para pessoas com deficiência | % Empregos PCD | Maior melhor | 5,0% | 2,0% | % | 1 | 3,7% | Atenção |
-| META12 | Social | Projetos com consulta às comunidades | % Consulta Comunidades | Maior melhor | 100,0% | 80,0% | % | 2 | 62,5% | Abaixo |
-| META13 | Social | Projetos com avaliação de impacto social | % Avaliação Impacto Social | Maior melhor | 100,0% | 80,0% | % | 2 | 52,1% | Abaixo |
-| META14 | Social | Empregos gerados sobre os previstos | % Empregos Gerados vs Previstos | Maior melhor | 80,0% | 50,0% | % | 2 | 39,3% | Abaixo |
-| META15 | Social | Taxa de frequência de acidentes | Taxa Frequência Acidentes | Menor melhor | 2,00 | 4,00 | dec | 1 | 2,12 | Atenção |
-| META16 | Governança | Contratos fiscalizados | % Contratos Fiscalizados | Maior melhor | 100,0% | 80,0% | % | 3 | 55,0% | Abaixo |
-| META17 | Governança | Recomendações de auditoria atendidas | % Recomendações Atendidas | Maior melhor | 90,0% | 70,0% | % | 3 | 79,2% | Atenção |
-| META18 | Governança | Riscos críticos mitigados | % Riscos Críticos Mitigados | Maior melhor | 80,0% | 60,0% | % | 3 | 45,7% | Abaixo |
-| META19 | Governança | Prestação de contas atualizada | % Prestação de Contas Atualizada | Maior melhor | 100,0% | 90,0% | % | 2 | 62,5% | Abaixo |
-| META20 | Governança | Colaboradores treinados em integridade | % Colaboradores Treinados Integridade | Maior melhor | 90,0% | 75,0% | % | 3 | 84,3% | Atenção |
-| META21 | Governança | Denúncias apuradas | % Denúncias Apuradas | Maior melhor | 100,0% | 80,0% | % | 3 | 46,7% | Abaixo |
-| META22 | Governança | Índice de transparência | Índice Transparência Médio | Maior melhor | 0,80 | 0,60 | idx | 2 | 0,58 | Abaixo |
-| META23 | Governança | Tempo médio de resposta (dias) | Tempo Médio Resposta dias | Menor melhor | 5,00 | 10,00 | dec | 2 | 4,71 | Atingida |
-| META24 | Governança | Casos de fraude ou corrupção | Casos Fraude ou Corrupção | Menor melhor | 0 | 0 | n | 3 | 4 | Abaixo |
+| ID | Pilar | Meta | Medida | Polaridade | Valor-alvo | Limite | Formato | Peso | Valor atual | Status | Atingimento |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| META01 | Ambiental | Projetos com licença ambiental válida | % Licença Válida | Maior melhor | 100,0% | 80,0% | % | 2 | 54,2% | Abaixo | 54,2% |
+| META02 | Ambiental | Projetos com avaliação de impacto ambiental | % Avaliação Impacto Ambiental | Maior melhor | 100,0% | 80,0% | % | 2 | 75,0% | Abaixo | 75,0% |
+| META03 | Ambiental | Resíduos com destinação correta | % Resíduos Destinados Corretamente | Maior melhor | 95,0% | 85,0% | % | 2 | 97,5% | Atingida | 100,0% |
+| META04 | Ambiental | Resíduos reciclados | % Resíduos Reciclados | Maior melhor | 50,0% | 30,0% | % | 2 | 66,0% | Atingida | 100,0% |
+| META05 | Ambiental | Água reutilizada | % Água Reutilizada | Maior melhor | 50,0% | 30,0% | % | 3 | 59,2% | Atingida | 100,0% |
+| META06 | Ambiental | Projetos com tecnologia limpa | % Projetos Tecnologia Limpa | Maior melhor | 90,0% | 70,0% | % | 2 | 95,8% | Atingida | 100,0% |
+| META07 | Ambiental | Energia renovável nos eletrolisadores | % Renovável nos Eletrolisadores | Maior melhor | 95,0% | 90,0% | % | 2 | 94,8% | Atenção | 99,7% |
+| META08 | Ambiental | Incidentes ambientais | Incidentes Ambientais | Menor melhor | 0 | 5 | n | 3 | 13 | Abaixo | 0,0% |
+| META09 | Social | Empregos para a população local | % Empregos População Local | Maior melhor | 60,0% | 40,0% | % | 2 | 60,8% | Atingida | 100,0% |
+| META10 | Social | Empregos para mulheres | % Empregos Mulheres | Maior melhor | 30,0% | 20,0% | % | 1 | 25,0% | Atenção | 83,2% |
+| META11 | Social | Empregos para pessoas com deficiência | % Empregos PCD | Maior melhor | 5,0% | 2,0% | % | 1 | 3,7% | Atenção | 74,6% |
+| META12 | Social | Projetos com consulta às comunidades | % Consulta Comunidades | Maior melhor | 100,0% | 80,0% | % | 2 | 62,5% | Abaixo | 62,5% |
+| META13 | Social | Projetos com avaliação de impacto social | % Avaliação Impacto Social | Maior melhor | 100,0% | 80,0% | % | 2 | 52,1% | Abaixo | 52,1% |
+| META14 | Social | Empregos gerados sobre os previstos | % Empregos Gerados vs Previstos | Maior melhor | 80,0% | 50,0% | % | 2 | 39,3% | Abaixo | 49,1% |
+| META15 | Social | Taxa de frequência de acidentes | Taxa Frequência Acidentes | Menor melhor | 2,00 | 4,00 | dec | 1 | 2,12 | Atenção | 50,0% |
+| META16 | Governança | Contratos fiscalizados | % Contratos Fiscalizados | Maior melhor | 100,0% | 80,0% | % | 3 | 55,0% | Abaixo | 55,0% |
+| META17 | Governança | Recomendações de auditoria atendidas | % Recomendações Atendidas | Maior melhor | 90,0% | 70,0% | % | 3 | 79,2% | Atenção | 88,0% |
+| META18 | Governança | Riscos críticos mitigados | % Riscos Críticos Mitigados | Maior melhor | 80,0% | 60,0% | % | 3 | 45,7% | Abaixo | 57,1% |
+| META19 | Governança | Prestação de contas atualizada | % Prestação de Contas Atualizada | Maior melhor | 100,0% | 90,0% | % | 2 | 62,5% | Abaixo | 62,5% |
+| META20 | Governança | Colaboradores treinados em integridade | % Colaboradores Treinados Integridade | Maior melhor | 90,0% | 75,0% | % | 3 | 84,3% | Atenção | 93,6% |
+| META21 | Governança | Denúncias apuradas | % Denúncias Apuradas | Maior melhor | 100,0% | 80,0% | % | 3 | 46,7% | Abaixo | 46,7% |
+| META22 | Governança | Índice de transparência | Índice Transparência Médio | Maior melhor | 0,80 | 0,60 | idx | 2 | 0,58 | Abaixo | 73,0% |
+| META23 | Governança | Tempo médio de resposta (dias) | Tempo Médio Resposta dias | Menor melhor | 5,00 | 10,00 | dec | 2 | 4,71 | Atingida | 100,0% |
+| META24 | Governança | Casos de fraude ou corrupção | Casos Fraude ou Corrupção | Menor melhor | 0 | 0 | n | 3 | 4 | Abaixo | 0,0% |
 
 ## Catálogo de indicadores (82)
 
