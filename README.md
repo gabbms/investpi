@@ -2,6 +2,8 @@
 
 Versão web do painel ASG do grupo. Um administrador envia a planilha da base pelo navegador; o sistema confere a estrutura, roda as 12 checagens de qualidade e grava os dados como uma nova versão. Quem tem login vê o painel com os mesmos números do Power BI v3: Visão Geral, Ambiental, Social, Governança, Metas ASG e uma tela para cada setor, com filtros por setor, vice-presidência, status do projeto, município e empresa.
 
+A tela inicial, **Investe Piauí**, mostra os indicadores ASG da própria instituição em três blocos: a gestão (contratos, orçamento, servidores e transparência), a operação da sede e o impacto da carteira. A operação da sede vem da aba opcional `dInstitucional` da planilha; na planilha modelo ela traz **dados de demonstração (fictícios)**, que devem ser trocados pelos reais. Uma planilha sem essa aba continua sendo aceita.
+
 É a peça "Sistema" do fluxo *Sistema → Base de dados → Painel BI* do desafio, entregue como MVP. A especificação está em [docs/superpowers/specs/2026-11-17-sistema-asg-web-design.md](docs/superpowers/specs/2026-11-17-sistema-asg-web-design.md).
 
 ## O que é preciso ter instalado
