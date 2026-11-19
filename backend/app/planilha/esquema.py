@@ -1,6 +1,7 @@
 """Abas e colunas aceitas na planilha de entrada (spec §6).
 
 Gerado a partir de dados/base_modelo.xlsx; os cabeçalhos são copiados exatamente.
+dInstitucional (opcional) traz os indicadores da própria Investe Piauí (sede).
 """
 from dataclasses import dataclass, field
 from typing import Literal
@@ -552,6 +553,40 @@ ABAS: dict[str, EspecAba] = {
             'Referência GRI': 'texto',
             'Polaridade': 'texto',
             'Página do Painel': 'texto',
+        },
+    ),
+    'dInstitucional': EspecAba(
+        colunas=[
+            'ID Institucional',
+            'Pilar',
+            'Indicador',
+            'Unidade',
+            'Formato',
+            'Polaridade',
+            'Ano Referência',
+            'Valor Anterior',
+            'Valor Atual',
+            'Meta',
+            'Limite Atenção',
+            'Referência GRI',
+            'Fonte',
+        ],
+        chave='ID Institucional',
+        obrigatoria=False,
+        tipos={
+            'ID Institucional': 'texto',
+            'Pilar': 'texto',
+            'Indicador': 'texto',
+            'Unidade': 'texto',
+            'Formato': 'texto',
+            'Polaridade': 'texto',
+            'Ano Referência': 'inteiro',
+            'Valor Anterior': 'numero',
+            'Valor Atual': 'numero',
+            'Meta': 'numero',
+            'Limite Atenção': 'numero',
+            'Referência GRI': 'texto',
+            'Fonte': 'texto',
         },
     ),
 }
